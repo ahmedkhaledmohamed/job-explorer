@@ -335,6 +335,13 @@ export function JobsTable() {
                 </th>
                 <th
                   className="px-4 py-3 cursor-pointer hover:text-gray-700"
+                  onClick={() => handleSort("match_score")}
+                >
+                  Match
+                  <SortIcon column="match_score" />
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer hover:text-gray-700"
                   onClick={() => handleSort("status")}
                 >
                   Status
@@ -395,6 +402,23 @@ export function JobsTable() {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
                     {formatRelativeDate(job.first_seen)}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {job.match_score != null ? (
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          job.match_score >= 0.7
+                            ? "bg-green-100 text-green-700"
+                            : job.match_score >= 0.4
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {Math.round(job.match_score * 100)}%
+                      </span>
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">

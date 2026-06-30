@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getDb, type Job, type FormField, type JobMaterials } from "@/lib/db";
+import { getDb, type Job, type FormField, type JobMaterials, type JobRequirement } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { notFound } from "next/navigation";
 import { JobDetail } from "./job-detail";
@@ -40,11 +40,18 @@ export default async function JobDetailPage({
     await sql`SELECT * FROM job_materials WHERE job_id = ${id} ORDER BY resume_variant`;
   const materials = materialsResult as unknown as JobMaterials[];
 
+  // Fetch requirements
+  const requirementsResult = await sql`
+    SELECT * FROM job_requirements WHERE job_id = ${id} ORDER BY
+      CASE category WHEN 'must_have' THEN 1 WHEN 'nice_to_have' THEN 2 ELSE 3 END, id
+  `;
+  const requirements = requirementsResult as unknown as JobRequirement[];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Nav />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <JobDetail job={job} formInfo={formInfo} materials={materials} />
+        <JobDetail job={job} formInfo={formInfo} materials={materials} requirements={requirements} />
       </main>
     </div>
   );

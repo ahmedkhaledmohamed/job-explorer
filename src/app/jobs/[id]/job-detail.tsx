@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, STATUS_OPTIONS } from "@/lib/utils";
-import type { Job, JobMaterials } from "@/lib/db";
+import type { Job, JobMaterials, JobRequirement } from "@/lib/db";
 
 const ATS_SOURCES = ["greenhouse", "lever", "ashby"];
 
@@ -17,10 +17,12 @@ export function JobDetail({
   job: initialJob,
   formInfo: initialFormInfo,
   materials: initialMaterials,
+  requirements: initialRequirements,
 }: {
   job: Job;
   formInfo?: FormInfo;
   materials?: JobMaterials[];
+  requirements?: JobRequirement[];
 }) {
   const [job, setJob] = useState<Job>(initialJob);
   const [notes, setNotes] = useState(job.notes || "");
@@ -36,6 +38,11 @@ export function JobDetail({
   const [materials, setMaterials] = useState<JobMaterials[]>(
     initialMaterials || []
   );
+  const [requirements, setRequirements] = useState<JobRequirement[]>(
+    initialRequirements || []
+  );
+  const [parsing, setParsing] = useState(false);
+  const [matching, setMatching] = useState(false);
   const [genVariant, setGenVariant] = useState<"pm" | "em">("pm");
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState("");
@@ -154,6 +161,37 @@ export function JobDetail({
     }
   }
 
+  async function parseRequirements() {
+    setParsing(true);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/requirements`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "parse" }),
+      });
+      const data = await res.json();
+      if (res.ok) setRequirements(data.requirements || []);
+    } catch { /* ignore */ }
+    setParsing(false);
+  }
+
+  async function matchRequirements() {
+    setMatching(true);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/requirements`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "match" }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRequirements(data.requirements || []);
+        setJob((prev) => ({ ...prev, match_score: data.match_score }));
+      }
+    } catch { /* ignore */ }
+    setMatching(false);
+  }
+
   async function copyText(text: string, label: string) {
     await navigator.clipboard.writeText(text);
     setCopied(label);
@@ -194,7 +232,22 @@ export function JobDetail({
               )}
             </div>
           </div>
-          <StatusBadge status={job.status} />
+          <div className="flex items-center gap-2">
+            {job.match_score != null && (
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                  job.match_score >= 0.7
+                    ? "bg-green-100 text-green-800"
+                    : job.match_score >= 0.4
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                }`}
+              >
+                {Math.round(job.match_score * 100)}% match
+              </span>
+            )}
+            <StatusBadge status={job.status} />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
@@ -274,6 +327,105 @@ export function JobDetail({
             {applyResult.success
               ? applyResult.message
               : applyResult.error || "Application failed"}
+          </div>
+        )}
+      </div>
+
+      {/* Requirements */}
+      <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-gray-500">Requirements Analysis</h2>
+          <div className="flex items-center gap-2">
+            {requirements.length === 0 ? (
+              <button
+                onClick={parseRequirements}
+                disabled={parsing || !job.description}
+                className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+              >
+                {parsing ? "Parsing..." : "Parse Requirements"}
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={matchRequirements}
+                  disabled={matching}
+                  className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+                >
+                  {matching ? "Matching..." : requirements.some((r) => r.match_status !== "pending") ? "Re-Match" : "Match Profile"}
+                </button>
+                <button
+                  onClick={parseRequirements}
+                  disabled={parsing}
+                  className="rounded-md border border-gray-300 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {parsing ? "..." : "Re-Parse"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {requirements.length === 0 && !job.description && (
+          <p className="text-sm text-gray-400">No description available to parse.</p>
+        )}
+
+        {requirements.length === 0 && job.description && (
+          <p className="text-sm text-gray-400">Click &ldquo;Parse Requirements&rdquo; to extract structured requirements from the job description.</p>
+        )}
+
+        {requirements.length > 0 && (
+          <div className="space-y-3">
+            {(["must_have", "nice_to_have", "inferred"] as const).map((cat) => {
+              const items = requirements.filter((r) => r.category === cat);
+              if (items.length === 0) return null;
+              return (
+                <div key={cat}>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    {cat === "must_have" ? "Must Have" : cat === "nice_to_have" ? "Nice to Have" : "Inferred"}
+                    <span className="ml-1 text-gray-300">({items.length})</span>
+                  </h3>
+                  <div className="space-y-1.5">
+                    {items.map((req) => (
+                      <div key={req.id} className="flex items-start gap-2 text-sm">
+                        <span className={`mt-0.5 inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+                          req.match_status === "matched" ? "bg-green-500" :
+                          req.match_status === "partial" ? "bg-yellow-500" :
+                          req.match_status === "unmatched" ? "bg-red-400" :
+                          "bg-gray-300"
+                        }`} />
+                        <div className="flex-1">
+                          <span className="text-gray-700">{req.requirement}</span>
+                          <span className="ml-1.5 inline-flex items-center rounded px-1 py-0.5 text-[10px] bg-gray-100 text-gray-500">
+                            {req.type}
+                          </span>
+                          {req.match_evidence && (
+                            <p className="text-xs text-gray-400 mt-0.5">{req.match_evidence}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            {job.match_score != null && (
+              <div className="pt-3 border-t text-sm text-gray-600">
+                <span className="font-medium">Overall Match:</span>{" "}
+                <span className={`font-bold ${
+                  job.match_score >= 0.7 ? "text-green-700" :
+                  job.match_score >= 0.4 ? "text-yellow-700" :
+                  "text-red-600"
+                }`}>
+                  {Math.round(job.match_score * 100)}%
+                </span>
+                {job.match_details && typeof job.match_details === "object" && "summary" in job.match_details && (
+                  <span className="text-gray-400 ml-2">
+                    — {String(job.match_details.summary)}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

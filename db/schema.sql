@@ -14,10 +14,13 @@ CREATE TABLE IF NOT EXISTS jobs (
   top_match BOOLEAN NOT NULL DEFAULT FALSE,
   notes TEXT,
   applied_at TIMESTAMPTZ,
-  resume_version TEXT
+  resume_version TEXT,
+  match_score FLOAT,
+  match_details JSONB
 );
 
 CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company);
+CREATE INDEX IF NOT EXISTS idx_jobs_match_score ON jobs(match_score DESC NULLS LAST);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_first_seen ON jobs(first_seen DESC);
 CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
@@ -111,6 +114,18 @@ CREATE TABLE IF NOT EXISTS case_studies (
 );
 CREATE INDEX IF NOT EXISTS idx_case_studies_slug ON case_studies(slug);
 CREATE INDEX IF NOT EXISTS idx_case_studies_published ON case_studies(published) WHERE published = TRUE;
+
+CREATE TABLE IF NOT EXISTS job_requirements (
+  id SERIAL PRIMARY KEY,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  requirement TEXT NOT NULL,
+  category TEXT NOT NULL,
+  type TEXT NOT NULL,
+  match_status TEXT DEFAULT 'pending',
+  match_evidence TEXT,
+  extracted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_job_requirements_job_id ON job_requirements(job_id);
 
 CREATE TABLE IF NOT EXISTS public_profiles (
   username TEXT PRIMARY KEY,
