@@ -8,6 +8,19 @@ export function getDb() {
   return neon(databaseUrl);
 }
 
+export type User = {
+  id: number;
+  email: string;
+  name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  provider: string | null;
+  provider_id: string | null;
+  invite_code: string | null;
+  created_at: string;
+  last_login: string | null;
+};
+
 export type Job = {
   id: string;
   title: string;

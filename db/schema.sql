@@ -1,3 +1,23 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  username TEXT UNIQUE,
+  avatar_url TEXT,
+  provider TEXT,
+  provider_id TEXT,
+  invite_code TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_login TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS invite_codes (
+  code TEXT PRIMARY KEY,
+  created_by INTEGER REFERENCES users(id),
+  used_by INTEGER REFERENCES users(id),
+  used_at TIMESTAMPTZ
+);
+
 CREATE TABLE IF NOT EXISTS jobs (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
@@ -28,6 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_jobs_top_match ON jobs(top_match) WHERE top_match
 
 CREATE TABLE IF NOT EXISTS apply_profile (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
@@ -98,6 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_profile_answers_pattern ON profile_answers(questi
 
 CREATE TABLE IF NOT EXISTS case_studies (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   slug TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
   company TEXT,
@@ -145,6 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_fit_narratives_slug ON fit_narratives(slug);
 
 CREATE TABLE IF NOT EXISTS public_profiles (
   username TEXT PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   profile_id INTEGER REFERENCES apply_profile(id),
   headline TEXT,
   summary TEXT,
