@@ -19,7 +19,7 @@ async function seed() {
     .filter((s) => s.length > 0);
 
   for (const statement of statements) {
-    await sql(statement);
+    await sql.query(statement);
   }
 
   console.log("Schema created successfully");
