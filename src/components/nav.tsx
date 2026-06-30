@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { auth, signOut } from "@/auth";
 
-export function Nav() {
+export async function Nav() {
+  const session = await auth();
+
   return (
     <nav className="border-b bg-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -51,6 +54,26 @@ export function Nav() {
               </Link>
             </div>
           </div>
+          {session?.user && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-500">
+                {session.user.name || session.user.email}
+              </span>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/login" });
+                }}
+              >
+                <button
+                  type="submit"
+                  className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </nav>
