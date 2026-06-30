@@ -147,6 +147,38 @@ export type Company = {
   updated_at: string;
 };
 
+export type CandidatePreferences = {
+  user_id: number;
+  work_style: {
+    communication?: string;
+    autonomy?: string;
+    meeting_frequency?: string;
+    decision_making?: string;
+    work_hours?: string;
+  };
+  team_preferences: {
+    team_size?: string;
+    product_stage?: string;
+    company_size?: string;
+    remote_preference?: string;
+  };
+  growth_priorities: string[];
+  deal_breakers: string[];
+  values: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type CompanyPreferences = {
+  id: number;
+  company_id: number;
+  job_id: string | null;
+  ideal_candidate: Record<string, unknown>;
+  work_style: Record<string, unknown>;
+  anti_patterns: string[];
+  created_at: string;
+};
+
 export type CompanyAccount = {
   id: number;
   company_id: number;

@@ -218,6 +218,29 @@ CREATE TABLE IF NOT EXISTS company_case_studies (
 );
 CREATE INDEX IF NOT EXISTS idx_company_case_studies_company ON company_case_studies(company_id);
 
+CREATE TABLE IF NOT EXISTS candidate_preferences (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  work_style JSONB DEFAULT '{}',
+  team_preferences JSONB DEFAULT '{}',
+  growth_priorities TEXT[] DEFAULT '{}',
+  deal_breakers TEXT[] DEFAULT '{}',
+  values TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS company_preferences (
+  id SERIAL PRIMARY KEY,
+  company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  job_id TEXT REFERENCES jobs(id) ON DELETE CASCADE,
+  ideal_candidate JSONB DEFAULT '{}',
+  work_style JSONB DEFAULT '{}',
+  anti_patterns TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_company_prefs_company ON company_preferences(company_id);
+CREATE INDEX IF NOT EXISTS idx_company_prefs_job ON company_preferences(job_id);
+
 CREATE TABLE IF NOT EXISTS case_studies (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
