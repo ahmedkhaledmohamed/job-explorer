@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getDb, type Job } from "@/lib/db";
+import { getDb, type Job, type FormField } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { notFound } from "next/navigation";
 import { JobDetail } from "./job-detail";
@@ -21,11 +21,25 @@ export default async function JobDetailPage({
 
   const job = result[0] as unknown as Job;
 
+  // Fetch form info if it exists
+  const formResult =
+    await sql`SELECT ready, fields FROM application_forms WHERE job_id = ${id}`;
+  let formInfo = undefined;
+  if (formResult.length > 0) {
+    const form = formResult[0];
+    const fields: FormField[] =
+      typeof form.fields === "string"
+        ? JSON.parse(form.fields as string)
+        : (form.fields as unknown as FormField[]);
+    const missingCount = fields.filter((f) => f.required && !f.matched).length;
+    formInfo = { ready: form.ready as boolean, missingCount };
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Nav />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <JobDetail job={job} />
+        <JobDetail job={job} formInfo={formInfo} />
       </main>
     </div>
   );

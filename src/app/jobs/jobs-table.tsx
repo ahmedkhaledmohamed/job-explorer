@@ -16,6 +16,7 @@ export function JobsTable() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [preparing, setPreparing] = useState(false);
 
   // Read filters from URL
   const q = searchParams.get("q") || "";
@@ -103,6 +104,38 @@ export function JobsTable() {
     fetchJobs();
   }
 
+  async function prepareApplications() {
+    if (selected.size === 0) return;
+    setPreparing(true);
+
+    try {
+      const res = await fetch("/api/jobs/prepare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobIds: Array.from(selected) }),
+      });
+      const data = await res.json();
+
+      if (data.results) {
+        const applyableIds = data.results
+          .filter((r: { canApply: boolean; jobId: string }) => r.canApply)
+          .map((r: { jobId: string }) => r.jobId);
+
+        if (applyableIds.length > 0) {
+          router.push(`/apply?jobIds=${applyableIds.join(",")}`);
+          return;
+        }
+      }
+
+      // If none can be applied to, refresh and show
+      fetchJobs();
+    } catch {
+      // Silently fail
+    } finally {
+      setPreparing(false);
+    }
+  }
+
   function SortIcon({ column }: { column: string }) {
     if (sort !== column) return null;
     return <span className="ml-1">{order === "asc" ? "↑" : "↓"}</span>;
@@ -177,6 +210,13 @@ export function JobsTable() {
               </option>
             ))}
           </select>
+          <button
+            onClick={prepareApplications}
+            disabled={preparing}
+            className="rounded-md bg-green-600 px-3 py-1 text-sm font-medium text-white hover:bg-green-500 transition-colors disabled:opacity-50"
+          >
+            {preparing ? "Preparing..." : "Prepare Applications"}
+          </button>
           <button
             onClick={() => setSelected(new Set())}
             className="text-sm text-blue-600 hover:underline"
@@ -287,7 +327,21 @@ export function JobsTable() {
                     {formatRelativeDate(job.first_seen)}
                   </td>
                   <td className="px-4 py-3">
-                    <StatusBadge status={job.status} />
+                    <div className="flex items-center gap-1.5">
+                      <StatusBadge status={job.status} />
+                      {job.form_ready === true && (
+                        <span
+                          className="inline-block w-2 h-2 rounded-full bg-green-500"
+                          title="Ready to submit"
+                        />
+                      )}
+                      {job.form_ready === false && (
+                        <span
+                          className="inline-block w-2 h-2 rounded-full bg-red-500"
+                          title="Missing fields"
+                        />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

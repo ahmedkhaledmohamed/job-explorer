@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
   const sortColumn = allowedSorts.includes(sort) ? sort : "first_seen";
 
   const countQuery = `SELECT COUNT(*) as total FROM jobs WHERE ${whereClause}`;
-  const dataQuery = `SELECT * FROM jobs WHERE ${whereClause} ORDER BY ${sortColumn} ${order} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+  const dataQuery = `SELECT jobs.*, af.ready as form_ready FROM jobs LEFT JOIN application_forms af ON af.job_id = jobs.id WHERE ${whereClause} ORDER BY ${sortColumn} ${order} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
 
   const countResult = await sql.query(countQuery, params);
   const total = parseInt(countResult[0]?.total || "0", 10);
