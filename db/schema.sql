@@ -121,10 +121,26 @@ CREATE TABLE IF NOT EXISTS user_jobs (
   saved_at TIMESTAMPTZ,
   applied_at TIMESTAMPTZ,
   resume_version TEXT,
+  pipeline_stage TEXT DEFAULT 'discovered',
+  pipeline_history JSONB DEFAULT '[]',
+  outcome TEXT,
+  outcome_reason TEXT,
   PRIMARY KEY (user_id, job_id)
 );
 CREATE INDEX IF NOT EXISTS idx_user_jobs_user_id ON user_jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_jobs_match_score ON user_jobs(user_id, match_score DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_user_jobs_pipeline ON user_jobs(user_id, pipeline_stage);
+
+CREATE TABLE IF NOT EXISTS interview_prep (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  stage TEXT NOT NULL,
+  content TEXT,
+  key_questions JSONB DEFAULT '[]',
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_interview_prep_job ON interview_prep(user_id, job_id);
 
 CREATE TABLE IF NOT EXISTS application_forms (
   job_id TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,

@@ -40,6 +40,10 @@ export type Job = {
   resume_version: string | null;
   match_score: number | null;
   match_details: Record<string, unknown> | null;
+  pipeline_stage?: string;
+  pipeline_history?: PipelineEvent[];
+  outcome?: string | null;
+  outcome_reason?: string | null;
   form_ready?: boolean | null;
 };
 
@@ -160,6 +164,26 @@ export type UserJob = {
   saved_at: string | null;
   applied_at: string | null;
   resume_version: string | null;
+  pipeline_stage: string;
+  pipeline_history: PipelineEvent[];
+  outcome: string | null;
+  outcome_reason: string | null;
+};
+
+export type PipelineEvent = {
+  stage: string;
+  entered_at: string;
+  notes?: string;
+};
+
+export type InterviewPrep = {
+  id: number;
+  user_id: number;
+  job_id: string;
+  stage: string;
+  content: string | null;
+  key_questions: string[];
+  generated_at: string;
 };
 
 export type JobRequirement = {

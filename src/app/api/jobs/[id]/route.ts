@@ -20,7 +20,8 @@ export async function GET(
 
   const result = await sql`
     SELECT j.*, uj.status AS status, uj.notes, uj.top_match, uj.match_score, uj.match_details,
-           uj.applied_at, uj.resume_version, uj.saved_at
+           uj.applied_at, uj.resume_version, uj.saved_at,
+           uj.pipeline_stage, uj.pipeline_history, uj.outcome, uj.outcome_reason
     FROM jobs j
     LEFT JOIN user_jobs uj ON uj.job_id = j.id AND uj.user_id = ${userId}
     WHERE j.id = ${id}
@@ -31,9 +32,9 @@ export async function GET(
   }
 
   const job = result[0];
-  // Default status if no user_jobs row
   if (job.status === null) job.status = "new";
   if (job.top_match === null) job.top_match = false;
+  if (job.pipeline_stage === null) job.pipeline_stage = "discovered";
 
   return NextResponse.json(job);
 }
@@ -44,7 +45,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { status, notes, top_match, resume_version } = body;
+  const { status, notes, top_match, resume_version, pipeline_stage, outcome, outcome_reason } = body;
 
   const sql = getDb();
   const userId = await getUserId();
@@ -87,6 +88,25 @@ export async function PATCH(
     setClauses.push(`resume_version = $${paramIdx++}`);
     values.push(resume_version);
   }
+  if (pipeline_stage !== undefined) {
+    setClauses.push(`pipeline_stage = $${paramIdx++}`);
+    values.push(pipeline_stage);
+    // Append to pipeline_history
+    setClauses.push(`pipeline_history = COALESCE(pipeline_history, '[]'::jsonb) || $${paramIdx++}::jsonb`);
+    values.push(JSON.stringify([{ stage: pipeline_stage, entered_at: new Date().toISOString() }]));
+    // Auto-set applied_at when moving to applied
+    if (pipeline_stage === "applied") {
+      setClauses.push("applied_at = COALESCE(applied_at, NOW())");
+    }
+  }
+  if (outcome !== undefined) {
+    setClauses.push(`outcome = $${paramIdx++}`);
+    values.push(outcome);
+  }
+  if (outcome_reason !== undefined) {
+    setClauses.push(`outcome_reason = $${paramIdx++}`);
+    values.push(outcome_reason);
+  }
 
   if (setClauses.length === 0) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
@@ -96,10 +116,10 @@ export async function PATCH(
   const query = `UPDATE user_jobs SET ${setClauses.join(", ")} WHERE user_id = $${paramIdx} AND job_id = $${paramIdx + 1}`;
   await sql.query(query, values);
 
-  // Return the merged job + user_jobs data
   const result = await sql`
     SELECT j.*, uj.status AS status, uj.notes, uj.top_match, uj.match_score, uj.match_details,
-           uj.applied_at, uj.resume_version, uj.saved_at
+           uj.applied_at, uj.resume_version, uj.saved_at,
+           uj.pipeline_stage, uj.pipeline_history, uj.outcome, uj.outcome_reason
     FROM jobs j
     LEFT JOIN user_jobs uj ON uj.job_id = j.id AND uj.user_id = ${userId}
     WHERE j.id = ${id}
@@ -108,6 +128,7 @@ export async function PATCH(
   const job = result[0];
   if (job.status === null) job.status = "new";
   if (job.top_match === null) job.top_match = false;
+  if (job.pipeline_stage === null) job.pipeline_stage = "discovered";
 
   return NextResponse.json(job);
 }

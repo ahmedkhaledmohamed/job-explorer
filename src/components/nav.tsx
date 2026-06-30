@@ -29,6 +29,12 @@ export async function Nav() {
                 Jobs
               </Link>
               <Link
+                href="/pipeline"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Pipeline
+              </Link>
+              <Link
                 href="/case-studies"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
