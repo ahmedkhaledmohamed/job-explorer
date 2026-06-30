@@ -126,6 +126,7 @@ export async function GET(request: NextRequest) {
     "first_seen",
     "status",
     "posted_date",
+    "match_score",
   ];
   const sortColumn = allowedSorts.includes(sort) ? sort : "first_seen";
 

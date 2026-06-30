@@ -25,6 +25,8 @@ export type Job = {
   notes: string | null;
   applied_at: string | null;
   resume_version: string | null;
+  match_score: number | null;
+  match_details: Record<string, unknown> | null;
   form_ready?: boolean | null;
 };
 
@@ -132,6 +134,17 @@ export type CaseStudy = {
   published: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type JobRequirement = {
+  id: number;
+  job_id: string;
+  requirement: string;
+  category: "must_have" | "nice_to_have" | "inferred";
+  type: "skill" | "experience" | "domain" | "trait" | "tool";
+  match_status: "matched" | "partial" | "unmatched" | "pending";
+  match_evidence: string | null;
+  extracted_at: string;
 };
 
 export type ExperienceEntry = {
