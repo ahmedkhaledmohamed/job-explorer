@@ -497,6 +497,27 @@ export function JobDetail({
             </select>
           </div>
 
+          {/* Pipeline Stage */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">Pipeline</h2>
+            <select
+              value={job.pipeline_stage || "discovered"}
+              onChange={async (e) => {
+                const res = await fetch(`/api/jobs/${job.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ pipeline_stage: e.target.value, status: e.target.value }),
+                });
+                if (res.ok) setJob(await res.json());
+              }}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {["discovered", "saved", "applied", "screen", "interview", "offer", "accepted", "rejected"].map((s) => (
+                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Resume Variant */}
           <div className="rounded-lg border bg-white p-6 shadow-sm">
             <h2 className="text-sm font-medium text-gray-500 mb-3">Resume</h2>
