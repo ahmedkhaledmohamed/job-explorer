@@ -218,6 +218,20 @@ CREATE TABLE IF NOT EXISTS company_case_studies (
 );
 CREATE INDEX IF NOT EXISTS idx_company_case_studies_company ON company_case_studies(company_id);
 
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id SERIAL PRIMARY KEY,
+  account_type TEXT NOT NULL,
+  account_id INTEGER NOT NULL,
+  plan TEXT NOT NULL DEFAULT 'free',
+  stripe_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  current_period_end TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_account ON subscriptions(account_type, account_id);
+
 CREATE TABLE IF NOT EXISTS candidate_preferences (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   work_style JSONB DEFAULT '{}',

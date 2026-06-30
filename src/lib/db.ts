@@ -165,6 +165,19 @@ export type Introduction = {
   outcome_at: string | null;
 };
 
+export type Subscription = {
+  id: number;
+  account_type: "user" | "company";
+  account_id: number;
+  plan: "free" | "pro" | "enterprise";
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  status: "active" | "cancelled" | "past_due";
+  current_period_end: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type MatchSignal = {
   id: number;
   signal_type: string;
