@@ -110,6 +110,22 @@ CREATE TABLE IF NOT EXISTS apply_profile (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS user_jobs (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'new',
+  notes TEXT,
+  top_match BOOLEAN NOT NULL DEFAULT FALSE,
+  match_score FLOAT,
+  match_details JSONB,
+  saved_at TIMESTAMPTZ,
+  applied_at TIMESTAMPTZ,
+  resume_version TEXT,
+  PRIMARY KEY (user_id, job_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_jobs_user_id ON user_jobs(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_jobs_match_score ON user_jobs(user_id, match_score DESC NULLS LAST);
+
 CREATE TABLE IF NOT EXISTS application_forms (
   job_id TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
   fields JSONB NOT NULL,

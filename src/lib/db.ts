@@ -149,6 +149,19 @@ export type CaseStudy = {
   updated_at: string;
 };
 
+export type UserJob = {
+  user_id: number;
+  job_id: string;
+  status: string;
+  notes: string | null;
+  top_match: boolean;
+  match_score: number | null;
+  match_details: Record<string, unknown> | null;
+  saved_at: string | null;
+  applied_at: string | null;
+  resume_version: string | null;
+};
+
 export type JobRequirement = {
   id: number;
   job_id: string;

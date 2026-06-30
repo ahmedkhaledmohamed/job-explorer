@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { generate } from "@/lib/ai";
+import { auth } from "@/auth";
 
 const PARSE_PROMPT = `You are a job description analyst. Extract structured requirements from the given job description.
 
@@ -172,12 +173,15 @@ export async function POST(
         `;
       }
 
-      // Update job match score
+      // Update user_jobs match score
+      const session = await auth();
+      const uid = session?.user?.id ? parseInt(session.user.id) : (await sql`SELECT id FROM users ORDER BY id LIMIT 1`)[0]?.id as number || 1;
       await sql`
-        UPDATE jobs
-        SET match_score = ${parsed.overall_score || null},
-            match_details = ${JSON.stringify({ summary: parsed.summary, matched_at: new Date().toISOString() })}
-        WHERE id = ${id}
+        INSERT INTO user_jobs (user_id, job_id, match_score, match_details)
+        VALUES (${uid}, ${id}, ${parsed.overall_score || null}, ${JSON.stringify({ summary: parsed.summary })})
+        ON CONFLICT (user_id, job_id) DO UPDATE SET
+          match_score = ${parsed.overall_score || null},
+          match_details = ${JSON.stringify({ summary: parsed.summary })}
       `;
 
       const updated = await sql`
