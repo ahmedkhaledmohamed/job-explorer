@@ -232,6 +232,31 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 );
 CREATE INDEX IF NOT EXISTS idx_subscriptions_account ON subscriptions(account_type, account_id);
 
+CREATE TABLE IF NOT EXISTS api_keys (
+  id SERIAL PRIMARY KEY,
+  account_type TEXT NOT NULL,
+  account_id INTEGER NOT NULL,
+  key_prefix TEXT NOT NULL,
+  key_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  permissions TEXT[] DEFAULT '{}',
+  last_used TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_api_keys_prefix ON api_keys(key_prefix);
+
+CREATE TABLE IF NOT EXISTS webhooks (
+  id SERIAL PRIMARY KEY,
+  account_type TEXT NOT NULL,
+  account_id INTEGER NOT NULL,
+  url TEXT NOT NULL,
+  events TEXT[] DEFAULT '{}',
+  secret TEXT,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_webhooks_account ON webhooks(account_type, account_id);
+
 CREATE TABLE IF NOT EXISTS candidate_preferences (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   work_style JSONB DEFAULT '{}',
