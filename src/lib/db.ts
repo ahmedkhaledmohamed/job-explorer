@@ -147,6 +147,28 @@ export type JobRequirement = {
   extracted_at: string;
 };
 
+export type FitMapping = {
+  requirement: string;
+  case_study_slug: string | null;
+  case_study_title: string | null;
+  explanation: string;
+  confidence: "high" | "medium" | "low";
+};
+
+export type FitNarrative = {
+  id: number;
+  job_id: string;
+  slug: string;
+  requirements: string[];
+  mappings: FitMapping[];
+  overall_narrative: string | null;
+  confidence_score: number | null;
+  generation_model: string | null;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ExperienceEntry = {
   company: string;
   title: string;

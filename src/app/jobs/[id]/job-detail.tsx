@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, STATUS_OPTIONS } from "@/lib/utils";
-import type { Job, JobMaterials, JobRequirement } from "@/lib/db";
+import type { Job, JobMaterials, JobRequirement, FitNarrative, FitMapping } from "@/lib/db";
 
 const ATS_SOURCES = ["greenhouse", "lever", "ashby"];
 
@@ -18,11 +18,13 @@ export function JobDetail({
   formInfo: initialFormInfo,
   materials: initialMaterials,
   requirements: initialRequirements,
+  fitNarrative: initialFitNarrative,
 }: {
   job: Job;
   formInfo?: FormInfo;
   materials?: JobMaterials[];
   requirements?: JobRequirement[];
+  fitNarrative?: FitNarrative | null;
 }) {
   const [job, setJob] = useState<Job>(initialJob);
   const [notes, setNotes] = useState(job.notes || "");
@@ -41,6 +43,10 @@ export function JobDetail({
   const [requirements, setRequirements] = useState<JobRequirement[]>(
     initialRequirements || []
   );
+  const [fitNarrative, setFitNarrative] = useState<FitNarrative | null>(
+    initialFitNarrative ?? null
+  );
+  const [generatingFit, setGeneratingFit] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [matching, setMatching] = useState(false);
   const [genVariant, setGenVariant] = useState<"pm" | "em">("pm");
@@ -158,6 +164,32 @@ export function JobDetail({
       setGenError("Network error");
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function generateFitNarrative() {
+    setGeneratingFit(true);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/fit-narrative`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (res.ok) setFitNarrative(data);
+    } catch { /* ignore */ }
+    setGeneratingFit(false);
+  }
+
+  async function togglePublishFit() {
+    if (!fitNarrative) return;
+    const res = await fetch(`/api/jobs/${job.id}/fit-narrative`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: !fitNarrative.published }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setFitNarrative(data);
     }
   }
 
@@ -576,6 +608,72 @@ export function JobDetail({
                     </div>
                   )}
               </div>
+            )}
+          </div>
+
+          {/* Fit Narrative */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">
+              Fit Narrative
+            </h2>
+            {requirements.length === 0 ? (
+              <p className="text-xs text-gray-400">
+                Parse requirements first to generate a fit narrative.
+              </p>
+            ) : (
+              <>
+                <button
+                  onClick={generateFitNarrative}
+                  disabled={generatingFit}
+                  className="w-full rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-50 mb-3"
+                >
+                  {generatingFit
+                    ? "Generating..."
+                    : fitNarrative
+                      ? "Regenerate"
+                      : "Generate Fit Narrative"}
+                </button>
+                {fitNarrative && (
+                  <div className="space-y-2">
+                    {fitNarrative.overall_narrative && (
+                      <p className="text-xs text-gray-600 line-clamp-4">
+                        {fitNarrative.overall_narrative}
+                      </p>
+                    )}
+                    {fitNarrative.mappings && (
+                      <p className="text-xs text-gray-400">
+                        {(typeof fitNarrative.mappings === "string"
+                          ? JSON.parse(fitNarrative.mappings)
+                          : fitNarrative.mappings
+                        ).length}{" "}
+                        requirements mapped
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <button
+                        onClick={togglePublishFit}
+                        className={`text-xs px-2 py-1 rounded ${
+                          fitNarrative.published
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {fitNarrative.published ? "Published" : "Publish"}
+                      </button>
+                      {fitNarrative.published && (
+                        <a
+                          href={`/p/ahmed-khaled/fit/${fitNarrative.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          View public link
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
