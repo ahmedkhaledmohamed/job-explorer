@@ -111,6 +111,29 @@ export type ProfileAnswer = {
   used_count: number;
 };
 
+export type CaseStudyDecision = {
+  decision: string;
+  rationale: string;
+  outcome: string;
+};
+
+export type CaseStudy = {
+  id: number;
+  slug: string;
+  title: string;
+  company: string | null;
+  role: string | null;
+  situation: string | null;
+  approach: string | null;
+  decisions: CaseStudyDecision[];
+  metrics: Record<string, string>;
+  reflections: string | null;
+  skills: string[];
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type JobMaterials = {
   id: number;
   job_id: string;
