@@ -26,6 +26,12 @@ export function Nav() {
                 Jobs
               </Link>
               <Link
+                href="/case-studies"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Case Studies
+              </Link>
+              <Link
                 href="/resumes"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
