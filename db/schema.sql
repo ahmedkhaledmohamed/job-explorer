@@ -127,6 +127,22 @@ CREATE TABLE IF NOT EXISTS job_requirements (
 );
 CREATE INDEX IF NOT EXISTS idx_job_requirements_job_id ON job_requirements(job_id);
 
+CREATE TABLE IF NOT EXISTS fit_narratives (
+  id SERIAL PRIMARY KEY,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  slug TEXT UNIQUE NOT NULL,
+  requirements JSONB DEFAULT '[]',
+  mappings JSONB DEFAULT '[]',
+  overall_narrative TEXT,
+  confidence_score FLOAT,
+  generation_model TEXT,
+  published BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_fit_narratives_job_id ON fit_narratives(job_id);
+CREATE INDEX IF NOT EXISTS idx_fit_narratives_slug ON fit_narratives(slug);
+
 CREATE TABLE IF NOT EXISTS public_profiles (
   username TEXT PRIMARY KEY,
   profile_id INTEGER REFERENCES apply_profile(id),
