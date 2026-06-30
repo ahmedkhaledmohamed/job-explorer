@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
   const company = searchParams.get("company") || "";
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
+  const topMatch = searchParams.get("top_match") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 100);
   const sort = searchParams.get("sort") || "first_seen";
@@ -106,6 +107,12 @@ export async function GET(request: NextRequest) {
     conditions.push(`first_seen <= $${paramIndex}`);
     params.push(to);
     paramIndex++;
+  }
+
+  if (topMatch === "true") {
+    conditions.push("top_match = TRUE");
+  } else if (topMatch === "false") {
+    conditions.push("top_match = FALSE");
   }
 
   const whereClause = conditions.join(" AND ");

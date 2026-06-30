@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, STATUS_OPTIONS } from "@/lib/utils";
-import type { Job } from "@/lib/db";
+import type { Job, JobMaterials } from "@/lib/db";
 
 const ATS_SOURCES = ["greenhouse", "lever", "ashby"];
 
@@ -16,9 +16,11 @@ type FormInfo = {
 export function JobDetail({
   job: initialJob,
   formInfo: initialFormInfo,
+  materials: initialMaterials,
 }: {
   job: Job;
   formInfo?: FormInfo;
+  materials?: JobMaterials[];
 }) {
   const [job, setJob] = useState<Job>(initialJob);
   const [notes, setNotes] = useState(job.notes || "");
@@ -31,9 +33,23 @@ export function JobDetail({
     error?: string;
   } | null>(null);
 
+  const [materials, setMaterials] = useState<JobMaterials[]>(
+    initialMaterials || []
+  );
+  const [genVariant, setGenVariant] = useState<"pm" | "em">("pm");
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState("");
+  const [expandedSection, setExpandedSection] = useState<
+    "resume" | "cover" | null
+  >(null);
+  const [copied, setCopied] = useState("");
+
   const canAutoApply =
-    job.ats_job_id &&
-    ATS_SOURCES.includes((job.source || "").toLowerCase());
+    job.ats_job_id && ATS_SOURCES.includes((job.source || "").toLowerCase());
+
+  const currentMaterial = materials.find(
+    (m) => m.resume_variant === genVariant
+  );
 
   async function updateStatus(newStatus: string) {
     setSaving(true);
@@ -47,6 +63,30 @@ export function JobDetail({
       setJob(updated);
     }
     setSaving(false);
+  }
+
+  async function toggleTopMatch() {
+    const res = await fetch(`/api/jobs/${job.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ top_match: !job.top_match }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setJob(updated);
+    }
+  }
+
+  async function updateResumeVersion(version: string) {
+    const res = await fetch(`/api/jobs/${job.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resume_version: version || null }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setJob(updated);
+    }
   }
 
   async function saveNotes() {
@@ -85,6 +125,41 @@ export function JobDetail({
     setApplying(false);
   }
 
+  async function generateMaterials() {
+    setGenerating(true);
+    setGenError("");
+
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variant: genVariant }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setGenError(data.error || "Generation failed");
+        return;
+      }
+
+      setMaterials((prev) => {
+        const filtered = prev.filter((m) => m.resume_variant !== genVariant);
+        return [...filtered, data as JobMaterials];
+      });
+      setExpandedSection("resume");
+    } catch {
+      setGenError("Network error");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function copyText(text: string, label: string) {
+    await navigator.clipboard.writeText(text);
+    setCopied(label);
+    setTimeout(() => setCopied(""), 2000);
+  }
+
   return (
     <div>
       <Link
@@ -97,12 +172,27 @@ export function JobDetail({
       {/* Header */}
       <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
         <div className="flex items-start justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
-            <p className="text-lg text-gray-600 mt-1">{job.company}</p>
-            {job.location && (
-              <p className="text-sm text-gray-500 mt-1">{job.location}</p>
-            )}
+          <div className="flex items-start gap-3">
+            <button
+              onClick={toggleTopMatch}
+              className={`mt-1 text-2xl leading-none transition-colors ${
+                job.top_match
+                  ? "text-orange-400 hover:text-orange-500"
+                  : "text-gray-300 hover:text-orange-400"
+              }`}
+              title={
+                job.top_match ? "Remove top match" : "Mark as top match"
+              }
+            >
+              {job.top_match ? "★" : "☆"}
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
+              <p className="text-lg text-gray-600 mt-1">{job.company}</p>
+              {job.location && (
+                <p className="text-sm text-gray-500 mt-1">{job.location}</p>
+              )}
+            </div>
           </div>
           <StatusBadge status={job.status} />
         </div>
@@ -221,6 +311,120 @@ export function JobDetail({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Resume Variant */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">Resume</h2>
+            <select
+              value={job.resume_version || ""}
+              onChange={(e) => updateResumeVersion(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select resume...</option>
+              <option value="pm">PM Resume</option>
+              <option value="em">EM Resume</option>
+              <option value="custom">Custom (generated)</option>
+            </select>
+          </div>
+
+          {/* AI Materials */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">
+              AI Materials
+            </h2>
+            <div className="flex items-center gap-2 mb-3">
+              <select
+                value={genVariant}
+                onChange={(e) => setGenVariant(e.target.value as "pm" | "em")}
+                className="rounded-md border border-gray-300 px-2 py-1.5 text-sm flex-1"
+              >
+                <option value="pm">PM variant</option>
+                <option value="em">EM variant</option>
+              </select>
+              <button
+                onClick={generateMaterials}
+                disabled={generating || !job.description}
+                className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-50"
+              >
+                {generating
+                  ? "Generating..."
+                  : currentMaterial
+                    ? "Regenerate"
+                    : "Generate"}
+              </button>
+            </div>
+            {!job.description && (
+              <p className="text-xs text-gray-400">
+                No job description — generation unavailable
+              </p>
+            )}
+            {genError && (
+              <p className="text-xs text-red-600 mb-2">{genError}</p>
+            )}
+            {currentMaterial && (
+              <div className="space-y-2">
+                <p className="text-xs text-gray-400">
+                  Generated via {currentMaterial.generation_model}
+                </p>
+                <button
+                  onClick={() =>
+                    setExpandedSection(
+                      expandedSection === "resume" ? null : "resume"
+                    )
+                  }
+                  className="w-full text-left text-sm font-medium text-blue-600 hover:underline"
+                >
+                  {expandedSection === "resume"
+                    ? "▾ Tailored Resume"
+                    : "▸ Tailored Resume"}
+                </button>
+                {expandedSection === "resume" &&
+                  currentMaterial.tailored_resume && (
+                    <div className="relative">
+                      <button
+                        onClick={() =>
+                          copyText(currentMaterial.tailored_resume!, "resume")
+                        }
+                        className="absolute top-2 right-2 text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        {copied === "resume" ? "Copied!" : "Copy"}
+                      </button>
+                      <pre className="bg-gray-50 border rounded p-3 text-xs whitespace-pre-wrap max-h-64 overflow-y-auto">
+                        {currentMaterial.tailored_resume}
+                      </pre>
+                    </div>
+                  )}
+                <button
+                  onClick={() =>
+                    setExpandedSection(
+                      expandedSection === "cover" ? null : "cover"
+                    )
+                  }
+                  className="w-full text-left text-sm font-medium text-blue-600 hover:underline"
+                >
+                  {expandedSection === "cover"
+                    ? "▾ Cover Letter"
+                    : "▸ Cover Letter"}
+                </button>
+                {expandedSection === "cover" &&
+                  currentMaterial.cover_letter && (
+                    <div className="relative">
+                      <button
+                        onClick={() =>
+                          copyText(currentMaterial.cover_letter!, "cover")
+                        }
+                        className="absolute top-2 right-2 text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        {copied === "cover" ? "Copied!" : "Copy"}
+                      </button>
+                      <pre className="bg-gray-50 border rounded p-3 text-xs whitespace-pre-wrap max-h-64 overflow-y-auto">
+                        {currentMaterial.cover_letter}
+                      </pre>
+                    </div>
+                  )}
+              </div>
+            )}
           </div>
 
           {/* Notes */}

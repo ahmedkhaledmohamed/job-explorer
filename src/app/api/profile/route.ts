@@ -12,51 +12,70 @@ export async function GET() {
   return NextResponse.json(result[0]);
 }
 
+const PROFILE_FIELDS = [
+  "full_name", "email", "phone", "linkedin_url", "resume_url",
+  "work_authorization", "default_cover_letter",
+  "first_name", "last_name", "pronouns",
+  "location_city", "location_state", "location_country",
+  "current_company", "current_title",
+  "github_url", "portfolio_url", "personal_website",
+  "visa_sponsorship_needed", "citizenship",
+  "desired_salary_min", "desired_salary_max", "salary_currency",
+  "notice_period", "earliest_start_date", "willing_to_relocate",
+  "preferred_locations",
+  "years_of_experience", "highest_education", "university",
+  "degree", "field_of_study", "graduation_year",
+  "gender", "race_ethnicity", "veteran_status", "disability_status",
+  "pm_resume_md", "em_resume_md", "how_did_you_hear",
+] as const;
+
 export async function PUT(request: NextRequest) {
   const body = await request.json();
-  const {
-    full_name,
-    email,
-    phone,
-    linkedin_url,
-    resume_url,
-    work_authorization,
-    default_cover_letter,
-  } = body;
 
-  if (!full_name || !email) {
+  if (!body.full_name || !body.email) {
     return NextResponse.json(
       { error: "full_name and email are required" },
       { status: 400 }
     );
   }
 
-  const sql = getDb();
+  // Auto-derive first_name/last_name from full_name if not explicitly set
+  if (body.full_name && !body.first_name) {
+    const parts = body.full_name.split(" ");
+    body.first_name = parts[0] || "";
+    body.last_name = parts.slice(1).join(" ") || "";
+  }
 
-  // Check if profile exists
+  const sql = getDb();
   const existing = await sql`SELECT id FROM apply_profile ORDER BY id LIMIT 1`;
+
+  // Build column list and values from the body
+  const setClauses: string[] = [];
+  const insertCols: string[] = [];
+  const insertPlaceholders: string[] = [];
+  const values: unknown[] = [];
+  let paramIdx = 1;
+
+  for (const field of PROFILE_FIELDS) {
+    if (body[field] !== undefined) {
+      const val = body[field] === "" ? null : body[field];
+      setClauses.push(`${field} = $${paramIdx}`);
+      insertCols.push(field);
+      insertPlaceholders.push(`$${paramIdx}`);
+      values.push(val);
+      paramIdx++;
+    }
+  }
 
   let result;
   if (existing.length > 0) {
-    result = await sql`
-      UPDATE apply_profile SET
-        full_name = ${full_name},
-        email = ${email},
-        phone = ${phone || null},
-        linkedin_url = ${linkedin_url || null},
-        resume_url = ${resume_url || null},
-        work_authorization = ${work_authorization || null},
-        default_cover_letter = ${default_cover_letter || null},
-        updated_at = NOW()
-      WHERE id = ${existing[0].id}
-      RETURNING *
-    `;
+    setClauses.push("updated_at = NOW()");
+    values.push(existing[0].id);
+    const query = `UPDATE apply_profile SET ${setClauses.join(", ")} WHERE id = $${paramIdx} RETURNING *`;
+    result = await sql.query(query, values);
   } else {
-    result = await sql`
-      INSERT INTO apply_profile (full_name, email, phone, linkedin_url, resume_url, work_authorization, default_cover_letter)
-      VALUES (${full_name}, ${email}, ${phone || null}, ${linkedin_url || null}, ${resume_url || null}, ${work_authorization || null}, ${default_cover_letter || null})
-      RETURNING *
-    `;
+    const query = `INSERT INTO apply_profile (${insertCols.join(", ")}) VALUES (${insertPlaceholders.join(", ")}) RETURNING *`;
+    result = await sql.query(query, values);
   }
 
   return NextResponse.json(result[0]);

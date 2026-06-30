@@ -21,6 +21,12 @@ export async function GET() {
   `;
   const applied = parseInt(appliedResult[0]?.count || "0", 10);
 
+  // Top matches
+  const topMatchResult = await sql`
+    SELECT COUNT(*) as count FROM jobs WHERE top_match = TRUE
+  `;
+  const topMatches = parseInt(topMatchResult[0]?.count || "0", 10);
+
   // Companies tracked
   const companiesResult = await sql`
     SELECT COUNT(DISTINCT company) as count FROM jobs
@@ -81,6 +87,7 @@ export async function GET() {
     newThisWeek,
     applied,
     companiesTracked,
+    topMatches,
     byStatus,
     bySource,
     topCompanies,
