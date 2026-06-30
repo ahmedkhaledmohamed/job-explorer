@@ -130,6 +130,23 @@ export type ProfileAnswer = {
   used_count: number;
 };
 
+export type Company = {
+  id: number;
+  name: string;
+  slug: string;
+  domain: string | null;
+  logo_url: string | null;
+  description: string | null;
+  industry: string | null;
+  size_category: string | null;
+  culture_signals: Record<string, unknown>;
+  tech_stack: string[];
+  hiring_velocity: Record<string, unknown>;
+  auto_generated: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type CaseStudyDecision = {
   decision: string;
   rationale: string;
