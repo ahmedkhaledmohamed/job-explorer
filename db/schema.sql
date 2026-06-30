@@ -33,3 +33,19 @@ CREATE TABLE IF NOT EXISTS apply_profile (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS application_forms (
+  job_id TEXT PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
+  fields JSONB NOT NULL,
+  scraped_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ready BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS profile_answers (
+  id SERIAL PRIMARY KEY,
+  question_pattern TEXT NOT NULL UNIQUE,
+  answer TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  used_count INTEGER DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_profile_answers_pattern ON profile_answers(question_pattern);

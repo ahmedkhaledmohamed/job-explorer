@@ -8,11 +8,23 @@ import type { Job } from "@/lib/db";
 
 const ATS_SOURCES = ["greenhouse", "lever", "ashby"];
 
-export function JobDetail({ job: initialJob }: { job: Job }) {
+type FormInfo = {
+  ready: boolean;
+  missingCount: number;
+} | null;
+
+export function JobDetail({
+  job: initialJob,
+  formInfo: initialFormInfo,
+}: {
+  job: Job;
+  formInfo?: FormInfo;
+}) {
   const [job, setJob] = useState<Job>(initialJob);
   const [notes, setNotes] = useState(job.notes || "");
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
+  const [formInfo] = useState<FormInfo>(initialFormInfo || null);
   const [applyResult, setApplyResult] = useState<{
     success: boolean;
     message?: string;
@@ -139,6 +151,27 @@ export function JobDetail({ job: initialJob }: { job: Job }) {
             </button>
           )}
         </div>
+
+        {formInfo && (
+          <div className="mt-3">
+            {formInfo.ready ? (
+              <span className="inline-flex items-center gap-1.5 text-sm text-green-700">
+                <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                Ready to submit
+              </span>
+            ) : (
+              <Link
+                href={`/apply?jobIds=${job.id}`}
+                className="inline-flex items-center gap-1.5 text-sm text-red-700 hover:underline"
+              >
+                <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+                {formInfo.missingCount} field
+                {formInfo.missingCount !== 1 ? "s" : ""} need
+                {formInfo.missingCount === 1 ? "s" : ""} answers &rarr; Review
+              </Link>
+            )}
+          </div>
+        )}
 
         {applyResult && (
           <div

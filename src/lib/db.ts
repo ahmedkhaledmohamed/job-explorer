@@ -24,6 +24,7 @@ export type Job = {
   notes: string | null;
   applied_at: string | null;
   resume_version: string | null;
+  form_ready?: boolean | null;
 };
 
 export type ApplyProfile = {
@@ -48,4 +49,29 @@ export type JobStats = {
   bySource: Record<string, number>;
   topCompanies: Array<{ company: string; count: number }>;
   jobsPerWeek: Array<{ week: string; count: number }>;
+};
+
+export type FormField = {
+  name: string;
+  label: string;
+  type: string;
+  required: boolean;
+  options?: string[];
+  value?: string;
+  matched?: boolean;
+};
+
+export type ApplicationForm = {
+  job_id: string;
+  fields: FormField[];
+  scraped_at: string;
+  ready: boolean;
+};
+
+export type ProfileAnswer = {
+  id: number;
+  question_pattern: string;
+  answer: string;
+  created_at: string;
+  used_count: number;
 };
