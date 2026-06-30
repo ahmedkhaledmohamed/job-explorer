@@ -7,9 +7,18 @@ CREATE TABLE IF NOT EXISTS users (
   provider TEXT,
   provider_id TEXT,
   invite_code TEXT,
+  wizard_progress JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   last_login TIMESTAMPTZ
 );
+
+CREATE TABLE IF NOT EXISTS skills_taxonomy (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  parent_id INTEGER REFERENCES skills_taxonomy(id)
+);
+CREATE INDEX IF NOT EXISTS idx_skills_taxonomy_category ON skills_taxonomy(category);
 
 CREATE TABLE IF NOT EXISTS invite_codes (
   code TEXT PRIMARY KEY,
