@@ -38,6 +38,12 @@ export function Nav() {
                 Resumes
               </Link>
               <Link
+                href="/public-profile"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Public Profile
+              </Link>
+              <Link
                 href="/profile"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >

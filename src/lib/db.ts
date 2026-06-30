@@ -134,6 +134,28 @@ export type CaseStudy = {
   updated_at: string;
 };
 
+export type ExperienceEntry = {
+  company: string;
+  title: string;
+  start: string;
+  end: string;
+  highlights: string[];
+  case_study_slugs: string[];
+};
+
+export type PublicProfile = {
+  username: string;
+  profile_id: number | null;
+  headline: string | null;
+  summary: string | null;
+  experience: ExperienceEntry[];
+  skills: string[];
+  theme: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type JobMaterials = {
   id: number;
   job_id: string;

@@ -112,6 +112,19 @@ CREATE TABLE IF NOT EXISTS case_studies (
 CREATE INDEX IF NOT EXISTS idx_case_studies_slug ON case_studies(slug);
 CREATE INDEX IF NOT EXISTS idx_case_studies_published ON case_studies(published) WHERE published = TRUE;
 
+CREATE TABLE IF NOT EXISTS public_profiles (
+  username TEXT PRIMARY KEY,
+  profile_id INTEGER REFERENCES apply_profile(id),
+  headline TEXT,
+  summary TEXT,
+  experience JSONB DEFAULT '[]',
+  skills JSONB DEFAULT '[]',
+  theme TEXT DEFAULT 'default',
+  is_public BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS job_materials (
   id SERIAL PRIMARY KEY,
   job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
