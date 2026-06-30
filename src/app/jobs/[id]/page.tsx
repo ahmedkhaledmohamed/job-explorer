@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getDb, type Job, type FormField, type JobMaterials, type JobRequirement, type FitNarrative } from "@/lib/db";
+import { getDb, type Job, type FormField, type JobMaterials, type JobRequirement, type FitNarrative, type RoleContext } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { notFound } from "next/navigation";
 import { JobDetail } from "./job-detail";
@@ -51,11 +51,15 @@ export default async function JobDetailPage({
   const fitResult = await sql`SELECT * FROM fit_narratives WHERE job_id = ${id} ORDER BY created_at DESC LIMIT 1`;
   const fitNarrative = fitResult.length > 0 ? (fitResult[0] as unknown as FitNarrative) : null;
 
+  // Fetch role context
+  const roleCtxResult = await sql`SELECT * FROM role_context WHERE job_id = ${id} LIMIT 1`;
+  const roleContext = roleCtxResult.length > 0 ? (roleCtxResult[0] as unknown as RoleContext) : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Nav />
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <JobDetail job={job} formInfo={formInfo} materials={materials} requirements={requirements} fitNarrative={fitNarrative} />
+        <JobDetail job={job} formInfo={formInfo} materials={materials} requirements={requirements} fitNarrative={fitNarrative} roleContext={roleContext} />
       </main>
     </div>
   );

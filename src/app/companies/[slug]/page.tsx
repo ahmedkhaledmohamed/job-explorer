@@ -54,6 +54,15 @@ export default async function CompanyPage({ params }: Props) {
     SELECT COUNT(*) as count FROM jobs WHERE LOWER(company) = LOWER(${company.name})
   `;
 
+  const companyCaseStudies = await sql`
+    SELECT * FROM company_case_studies
+    WHERE company_id = ${company.id} AND published = TRUE
+    ORDER BY created_at DESC
+  `;
+
+  const companyAccount = await sql`SELECT * FROM company_accounts WHERE company_id = ${company.id} LIMIT 1`;
+  const isClaimed = companyAccount.length > 0;
+
   const velocity = company.hiring_velocity as Record<string, unknown> || {};
   const cultureSignals = company.culture_signals as Record<string, unknown> || {};
 
@@ -90,6 +99,11 @@ export default async function CompanyPage({ params }: Props) {
             {velocity.first_seen ? (
               <span>Tracking since {formatDate(velocity.first_seen as string)}</span>
             ) : null}
+            {isClaimed ? (
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Claimed</span>
+            ) : (
+              <span className="text-xs text-gray-400">Auto-generated profile</span>
+            )}
           </div>
         </div>
 
@@ -146,6 +160,34 @@ export default async function CompanyPage({ params }: Props) {
                       <span className="text-xs text-gray-400 ml-auto">
                         {req.frequency as number}x
                       </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Company Case Studies */}
+            {companyCaseStudies.length > 0 && (
+              <div className="rounded-lg border bg-white p-6 shadow-sm">
+                <h2 className="text-sm font-medium text-gray-500 mb-4">
+                  How We Work — Team Case Studies
+                </h2>
+                <div className="space-y-4">
+                  {companyCaseStudies.map((cs) => (
+                    <div key={cs.id as number} className="border-l-2 border-blue-200 pl-4">
+                      <h3 className="text-sm font-semibold text-gray-900">{cs.title as string}</h3>
+                      {cs.problem && (
+                        <p className="text-sm text-gray-600 mt-1">{cs.problem as string}</p>
+                      )}
+                      {cs.outcome && (
+                        <p className="text-sm text-green-700 mt-1">{cs.outcome as string}</p>
+                      )}
+                      {(cs.tech_used as string[])?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {(cs.tech_used as string[]).map((t) => (
+                            <span key={t} className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600">{t}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

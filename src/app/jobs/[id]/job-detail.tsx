@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, STATUS_OPTIONS } from "@/lib/utils";
-import type { Job, JobMaterials, JobRequirement, FitNarrative, FitMapping } from "@/lib/db";
+import type { Job, JobMaterials, JobRequirement, FitNarrative, FitMapping, RoleContext } from "@/lib/db";
 
 const ATS_SOURCES = ["greenhouse", "lever", "ashby"];
 
@@ -19,12 +19,14 @@ export function JobDetail({
   materials: initialMaterials,
   requirements: initialRequirements,
   fitNarrative: initialFitNarrative,
+  roleContext,
 }: {
   job: Job;
   formInfo?: FormInfo;
   materials?: JobMaterials[];
   requirements?: JobRequirement[];
   fitNarrative?: FitNarrative | null;
+  roleContext?: RoleContext | null;
 }) {
   const [job, setJob] = useState<Job>(initialJob);
   const [notes, setNotes] = useState(job.notes || "");
@@ -461,6 +463,39 @@ export function JobDetail({
           </div>
         )}
       </div>
+
+      {/* Role Context (company-authored) */}
+      {roleContext && (
+        <div className="rounded-lg border bg-white p-6 shadow-sm mb-6">
+          <h2 className="text-sm font-medium text-gray-500 mb-4">What Success Looks Like</h2>
+          <div className="space-y-4 text-sm">
+            {roleContext.first_90_days && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-1">First 90 Days</h3>
+                <p className="text-gray-600">{roleContext.first_90_days}</p>
+              </div>
+            )}
+            {roleContext.team_context && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-1">Team Context</h3>
+                <p className="text-gray-600">{roleContext.team_context}</p>
+              </div>
+            )}
+            {roleContext.challenges && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-1">Key Challenges</h3>
+                <p className="text-gray-600">{roleContext.challenges}</p>
+              </div>
+            )}
+            {roleContext.success_criteria && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-1">Success Criteria</h3>
+                <p className="text-gray-600">{roleContext.success_criteria}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Description */}

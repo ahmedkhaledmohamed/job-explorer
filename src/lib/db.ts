@@ -147,6 +147,43 @@ export type Company = {
   updated_at: string;
 };
 
+export type CompanyAccount = {
+  id: number;
+  company_id: number;
+  admin_user_id: number;
+  verified: boolean;
+  domain: string | null;
+  plan: string;
+  created_at: string;
+};
+
+export type RoleContext = {
+  id: number;
+  job_id: string;
+  company_id: number | null;
+  success_criteria: string | null;
+  first_90_days: string | null;
+  team_context: string | null;
+  challenges: string | null;
+  structured_requirements: Array<{ requirement: string; category: string; type: string }>;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CompanyCaseStudy = {
+  id: number;
+  company_id: number;
+  title: string;
+  problem: string | null;
+  approach: string | null;
+  outcome: string | null;
+  tech_used: string[];
+  created_by: number | null;
+  published: boolean;
+  created_at: string;
+};
+
 export type CaseStudyDecision = {
   decision: string;
   rationale: string;
