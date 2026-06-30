@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ResumeImport } from "./resume-import";
 
 type Profile = {
   full_name: string;
@@ -214,6 +215,39 @@ export function ProfileForm() {
     setProfile((prev) => ({ ...prev, [field]: value }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleImport(data: any) {
+    setProfile((prev) => {
+      const next = { ...prev };
+      const fieldMap: Record<string, keyof Profile> = {
+        first_name: "first_name", last_name: "last_name",
+        email: "email", phone: "phone",
+        location_city: "location_city", location_state: "location_state",
+        location_country: "location_country",
+        current_company: "current_company", current_title: "current_title",
+        linkedin_url: "linkedin_url", github_url: "github_url",
+        portfolio_url: "portfolio_url", personal_website: "personal_website",
+        highest_education: "highest_education", university: "university",
+        degree: "degree", field_of_study: "field_of_study",
+      };
+      for (const [src, dst] of Object.entries(fieldMap)) {
+        if (data[src] && !prev[dst]) {
+          (next as Record<string, unknown>)[dst] = data[src];
+        }
+      }
+      if (data.years_of_experience && !prev.years_of_experience) {
+        next.years_of_experience = String(data.years_of_experience);
+      }
+      if (data.graduation_year && !prev.graduation_year) {
+        next.graduation_year = String(data.graduation_year);
+      }
+      if (data.first_name && data.last_name && !prev.full_name) {
+        next.full_name = `${data.first_name} ${data.last_name}`;
+      }
+      return next;
+    });
+  }
+
   if (loading) {
     return (
       <div className="text-sm text-gray-400 py-8 text-center">Loading...</div>
@@ -222,6 +256,8 @@ export function ProfileForm() {
 
   return (
     <form onSubmit={handleSave} className="space-y-4">
+      <ResumeImport onImport={handleImport} />
+
       <Section title="Personal Information" defaultOpen={true}>
         <div className="grid grid-cols-2 gap-4">
           <Field label="First Name" required>
