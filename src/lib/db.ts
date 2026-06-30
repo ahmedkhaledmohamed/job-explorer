@@ -161,6 +161,19 @@ export type Introduction = {
   viewed_at: string | null;
   responded_at: string | null;
   response_message: string | null;
+  outcome: string | null;
+  outcome_at: string | null;
+};
+
+export type MatchSignal = {
+  id: number;
+  signal_type: string;
+  signal_key: string;
+  signal_value: string;
+  weight: number;
+  positive_count: number;
+  negative_count: number;
+  computed_at: string;
 };
 
 export type CandidatePreferences = {
