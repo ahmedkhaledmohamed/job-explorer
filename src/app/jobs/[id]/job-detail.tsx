@@ -49,6 +49,12 @@ export function JobDetail({
     initialFitNarrative ?? null
   );
   const [generatingFit, setGeneratingFit] = useState(false);
+  const [mutualMatching, setMutualMatching] = useState(false);
+  type MutualResult = { candidate_to_job: { score: number; strengths: string[]; gaps: string[] }; job_to_candidate: { score: number; strengths: string[]; concerns: string[] }; overall_score: number; summary: string };
+  const [mutualResult, setMutualResult] = useState<MutualResult | null>(
+    job.match_details && (job.match_details as Record<string, unknown>).mutual
+      ? job.match_details as unknown as MutualResult : null
+  );
   const [parsing, setParsing] = useState(false);
   const [matching, setMatching] = useState(false);
   const [genVariant, setGenVariant] = useState<"pm" | "em">("pm");
@@ -167,6 +173,19 @@ export function JobDetail({
     } finally {
       setGenerating(false);
     }
+  }
+
+  async function runMutualMatch() {
+    setMutualMatching(true);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/mutual-match`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setMutualResult(data);
+        setJob((prev) => ({ ...prev, match_score: data.overall_score }));
+      }
+    } catch { /* ignore */ }
+    setMutualMatching(false);
   }
 
   async function generateFitNarrative() {
@@ -551,6 +570,53 @@ export function JobDetail({
                 <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
               ))}
             </select>
+          </div>
+
+          {/* Mutual Match */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-gray-500 mb-3">Mutual Match</h2>
+            <button
+              onClick={runMutualMatch}
+              disabled={mutualMatching}
+              className="w-full rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 mb-3"
+            >
+              {mutualMatching ? "Matching..." : mutualResult ? "Re-Match" : "Run Mutual Match"}
+            </button>
+            {mutualResult && (
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">You → Job</span>
+                  <span className={`font-bold ${mutualResult.candidate_to_job.score >= 0.7 ? "text-green-600" : mutualResult.candidate_to_job.score >= 0.4 ? "text-yellow-600" : "text-red-500"}`}>
+                    {Math.round(mutualResult.candidate_to_job.score * 100)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">Job → You</span>
+                  <span className={`font-bold ${mutualResult.job_to_candidate.score >= 0.7 ? "text-green-600" : mutualResult.job_to_candidate.score >= 0.4 ? "text-yellow-600" : "text-red-500"}`}>
+                    {Math.round(mutualResult.job_to_candidate.score * 100)}%
+                  </span>
+                </div>
+                <div className="border-t pt-2">
+                  <p className="text-xs text-gray-600">{mutualResult.summary}</p>
+                </div>
+                {mutualResult.candidate_to_job.strengths.length > 0 && (
+                  <div>
+                    <p className="text-xs text-green-700 font-medium">Strengths</p>
+                    {mutualResult.candidate_to_job.strengths.map((s, i) => (
+                      <p key={i} className="text-xs text-gray-500 mt-0.5">+ {s}</p>
+                    ))}
+                  </div>
+                )}
+                {mutualResult.job_to_candidate.concerns.length > 0 && (
+                  <div>
+                    <p className="text-xs text-red-600 font-medium">Concerns</p>
+                    {mutualResult.job_to_candidate.concerns.map((c, i) => (
+                      <p key={i} className="text-xs text-gray-500 mt-0.5">- {c}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Resume Variant */}

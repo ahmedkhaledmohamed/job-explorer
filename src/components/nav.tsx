@@ -59,6 +59,12 @@ export async function Nav() {
                 Public Profile
               </Link>
               <Link
+                href="/preferences"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Preferences
+              </Link>
+              <Link
                 href="/onboarding"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
