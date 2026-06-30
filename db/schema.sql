@@ -158,6 +158,25 @@ CREATE TABLE IF NOT EXISTS profile_answers (
 );
 CREATE INDEX IF NOT EXISTS idx_profile_answers_pattern ON profile_answers(question_pattern);
 
+CREATE TABLE IF NOT EXISTS companies (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  domain TEXT,
+  logo_url TEXT,
+  description TEXT,
+  industry TEXT,
+  size_category TEXT,
+  culture_signals JSONB DEFAULT '{}',
+  tech_stack TEXT[] DEFAULT '{}',
+  hiring_velocity JSONB DEFAULT '{}',
+  auto_generated BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_companies_slug ON companies(slug);
+CREATE INDEX IF NOT EXISTS idx_companies_name ON companies(name);
+
 CREATE TABLE IF NOT EXISTS case_studies (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
