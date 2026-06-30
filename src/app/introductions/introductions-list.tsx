@@ -21,6 +21,7 @@ type Intro = {
   viewed_at: string | null;
   responded_at: string | null;
   response_message: string | null;
+  outcome: string | null;
 };
 
 type RateLimit = { used: number; limit: number; remaining: number };
@@ -155,6 +156,43 @@ export function IntroductionsList() {
                   {intro.response_message}
                 </div>
               )}
+
+              {/* Outcome tracking */}
+              <div className="mt-3 pt-3 border-t flex items-center gap-2">
+                <span className="text-xs text-gray-400">Outcome:</span>
+                <select
+                  value={intro.outcome || ""}
+                  onChange={async (e) => {
+                    const outcome = e.target.value;
+                    await fetch(`/api/introductions/${intro.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ outcome: outcome || null }),
+                    });
+                    setIntros((prev) =>
+                      prev.map((x) => x.id === intro.id ? { ...x, outcome } : x)
+                    );
+                  }}
+                  className="rounded border border-gray-300 px-2 py-0.5 text-xs"
+                >
+                  <option value="">Not set</option>
+                  <option value="no_response">No response</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="screen">Phone screen</option>
+                  <option value="interview">Interview</option>
+                  <option value="offer">Offer</option>
+                  <option value="hired">Hired</option>
+                </select>
+                {intro.outcome && (
+                  <span className={`text-xs font-medium ${
+                    ["interview","offer","hired"].includes(intro.outcome) ? "text-green-600" :
+                    intro.outcome === "rejected" || intro.outcome === "no_response" ? "text-red-500" :
+                    "text-gray-500"
+                  }`}>
+                    {intro.outcome.replace("_", " ")}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>

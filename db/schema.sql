@@ -302,11 +302,26 @@ CREATE TABLE IF NOT EXISTS introductions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   viewed_at TIMESTAMPTZ,
   responded_at TIMESTAMPTZ,
-  response_message TEXT
+  response_message TEXT,
+  outcome TEXT,
+  outcome_at TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_introductions_candidate ON introductions(candidate_id);
 CREATE INDEX IF NOT EXISTS idx_introductions_company ON introductions(company_id);
 CREATE INDEX IF NOT EXISTS idx_introductions_status ON introductions(status);
+
+CREATE TABLE IF NOT EXISTS match_signals (
+  id SERIAL PRIMARY KEY,
+  signal_type TEXT NOT NULL,
+  signal_key TEXT NOT NULL,
+  signal_value TEXT NOT NULL,
+  weight FLOAT NOT NULL DEFAULT 1.0,
+  positive_count INTEGER NOT NULL DEFAULT 0,
+  negative_count INTEGER NOT NULL DEFAULT 0,
+  computed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(signal_type, signal_key, signal_value)
+);
+CREATE INDEX IF NOT EXISTS idx_match_signals_type ON match_signals(signal_type);
 
 CREATE TABLE IF NOT EXISTS public_profiles (
   username TEXT PRIMARY KEY,
