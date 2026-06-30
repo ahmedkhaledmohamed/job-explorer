@@ -1,0 +1,40 @@
+import Link from "next/link";
+
+export function Nav() {
+  return (
+    <nav className="border-b bg-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link
+              href="/"
+              className="text-lg font-semibold tracking-tight text-gray-900"
+            >
+              Job Explorer
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/jobs"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Jobs
+              </Link>
+              <Link
+                href="/profile"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Profile
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
