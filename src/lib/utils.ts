@@ -32,6 +32,7 @@ export function formatRelativeDate(dateString: string | null): string {
 export const STATUS_OPTIONS = [
   "new",
   "saved",
+  "top_match",
   "applied",
   "interviewing",
   "offer",
@@ -45,6 +46,7 @@ export function statusColor(status: string): string {
   const colors: Record<string, string> = {
     new: "bg-blue-100 text-blue-800",
     saved: "bg-yellow-100 text-yellow-800",
+    top_match: "bg-orange-100 text-orange-800",
     applied: "bg-green-100 text-green-800",
     interviewing: "bg-purple-100 text-purple-800",
     offer: "bg-emerald-100 text-emerald-800",
