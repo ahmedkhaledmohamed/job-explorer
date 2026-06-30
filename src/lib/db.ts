@@ -147,6 +147,22 @@ export type Company = {
   updated_at: string;
 };
 
+export type Introduction = {
+  id: number;
+  candidate_id: number;
+  company_id: number;
+  job_id: string | null;
+  initiated_by: "candidate" | "company";
+  match_score: number | null;
+  fit_narrative_id: number | null;
+  message: string | null;
+  status: "pending" | "viewed" | "responded" | "declined";
+  created_at: string;
+  viewed_at: string | null;
+  responded_at: string | null;
+  response_message: string | null;
+};
+
 export type CandidatePreferences = {
   user_id: number;
   work_style: {
