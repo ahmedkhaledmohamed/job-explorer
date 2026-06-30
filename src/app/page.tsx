@@ -11,18 +11,20 @@ import Link from "next/link";
 async function getStats() {
   const sql = getDb();
 
-  const [totalResult, newThisWeekResult, appliedResult, companiesResult] =
+  const [totalResult, newThisWeekResult, appliedResult, companiesResult, topMatchResult] =
     await Promise.all([
       sql`SELECT COUNT(*) as count FROM jobs`,
       sql`SELECT COUNT(*) as count FROM jobs WHERE first_seen >= NOW() - INTERVAL '7 days'`,
       sql`SELECT COUNT(*) as count FROM jobs WHERE status = 'applied'`,
       sql`SELECT COUNT(DISTINCT company) as count FROM jobs`,
+      sql`SELECT COUNT(*) as count FROM jobs WHERE top_match = TRUE`,
     ]);
 
   const total = parseInt(totalResult[0]?.count || "0", 10);
   const newThisWeek = parseInt(newThisWeekResult[0]?.count || "0", 10);
   const applied = parseInt(appliedResult[0]?.count || "0", 10);
   const companiesTracked = parseInt(companiesResult[0]?.count || "0", 10);
+  const topMatches = parseInt(topMatchResult[0]?.count || "0", 10);
 
   const topCompanies = await sql`
     SELECT company, COUNT(*) as count FROM jobs
@@ -48,6 +50,7 @@ async function getStats() {
     newThisWeek,
     applied,
     companiesTracked,
+    topMatches,
     topCompanies: topCompanies.map((r) => ({
       company: r.company as string,
       count: parseInt(r.count as string, 10),
@@ -70,9 +73,10 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
         {/* Stats cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
           <StatCard label="Total Jobs" value={stats.total} />
           <StatCard label="New This Week" value={stats.newThisWeek} />
+          <StatCard label="Top Matches" value={stats.topMatches} />
           <StatCard label="Applied" value={stats.applied} />
           <StatCard label="Companies" value={stats.companiesTracked} />
         </div>

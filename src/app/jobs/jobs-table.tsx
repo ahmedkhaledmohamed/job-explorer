@@ -18,10 +18,10 @@ export function JobsTable() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [preparing, setPreparing] = useState(false);
 
-  // Read filters from URL
   const q = searchParams.get("q") || "";
   const status = searchParams.get("status") || "";
   const source = searchParams.get("source") || "";
+  const topMatch = searchParams.get("top_match") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
   const sort = searchParams.get("sort") || "first_seen";
   const order = searchParams.get("order") || "desc";
@@ -32,6 +32,7 @@ export function JobsTable() {
     if (q) params.set("q", q);
     if (status) params.set("status", status);
     if (source) params.set("source", source);
+    if (topMatch) params.set("top_match", topMatch);
     params.set("page", String(page));
     params.set("limit", "20");
     params.set("sort", sort);
@@ -43,7 +44,7 @@ export function JobsTable() {
     setTotal(data.total || 0);
     setTotalPages(data.totalPages || 0);
     setLoading(false);
-  }, [q, status, source, page, sort, order]);
+  }, [q, status, source, topMatch, page, sort, order]);
 
   useEffect(() => {
     fetchJobs();
@@ -58,7 +59,6 @@ export function JobsTable() {
         params.delete(key);
       }
     }
-    // Reset to page 1 when filters change
     if (!updates.page) {
       params.set("page", "1");
     }
@@ -104,6 +104,36 @@ export function JobsTable() {
     fetchJobs();
   }
 
+  async function bulkToggleTopMatch(value: boolean) {
+    if (selected.size === 0) return;
+    const promises = Array.from(selected).map((id) =>
+      fetch(`/api/jobs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ top_match: value }),
+      })
+    );
+    await Promise.all(promises);
+    setSelected(new Set());
+    fetchJobs();
+  }
+
+  async function toggleJobTopMatch(e: React.MouseEvent, job: Job) {
+    e.stopPropagation();
+    const res = await fetch(`/api/jobs/${job.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ top_match: !job.top_match }),
+    });
+    if (res.ok) {
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === job.id ? { ...j, top_match: !j.top_match } : j
+        )
+      );
+    }
+  }
+
   async function prepareApplications() {
     if (selected.size === 0) return;
     setPreparing(true);
@@ -127,7 +157,6 @@ export function JobsTable() {
         }
       }
 
-      // If none can be applied to, refresh and show
       fetchJobs();
     } catch {
       // Silently fail
@@ -183,6 +212,20 @@ export function JobsTable() {
           <option value="workday">Workday</option>
         </select>
 
+        <button
+          onClick={() => {
+            if (topMatch === "true") updateParams({ top_match: "" });
+            else updateParams({ top_match: "true" });
+          }}
+          className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+            topMatch === "true"
+              ? "border-orange-400 bg-orange-50 text-orange-700"
+              : "border-gray-300 text-gray-600 hover:bg-gray-50"
+          }`}
+        >
+          {topMatch === "true" ? "★ Top Matches" : "☆ Top Matches"}
+        </button>
+
         <span className="text-sm text-gray-500 ml-auto">
           {total} job{total !== 1 ? "s" : ""}
         </span>
@@ -210,6 +253,18 @@ export function JobsTable() {
               </option>
             ))}
           </select>
+          <button
+            onClick={() => bulkToggleTopMatch(true)}
+            className="rounded-md border border-orange-300 bg-orange-50 px-2 py-1 text-sm text-orange-700 hover:bg-orange-100"
+          >
+            Mark Top Match
+          </button>
+          <button
+            onClick={() => bulkToggleTopMatch(false)}
+            className="rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50"
+          >
+            Unmark Top Match
+          </button>
           <button
             onClick={prepareApplications}
             disabled={preparing}
@@ -248,6 +303,7 @@ export function JobsTable() {
                     className="rounded"
                   />
                 </th>
+                <th className="px-2 py-3 w-8"></th>
                 <th
                   className="px-4 py-3 cursor-pointer hover:text-gray-700"
                   onClick={() => handleSort("title")}
@@ -292,7 +348,6 @@ export function JobsTable() {
                   key={job.id}
                   className="border-b last:border-0 hover:bg-gray-50 cursor-pointer"
                   onClick={(e) => {
-                    // Don't navigate if clicking checkbox
                     if ((e.target as HTMLElement).tagName === "INPUT") return;
                     router.push(`/jobs/${job.id}`);
                   }}
@@ -304,6 +359,21 @@ export function JobsTable() {
                       onChange={() => toggleSelect(job.id)}
                       className="rounded"
                     />
+                  </td>
+                  <td className="px-2 py-3">
+                    <button
+                      onClick={(e) => toggleJobTopMatch(e, job)}
+                      className={`text-lg leading-none transition-colors ${
+                        job.top_match
+                          ? "text-orange-400 hover:text-orange-500"
+                          : "text-gray-300 hover:text-orange-400"
+                      }`}
+                      title={
+                        job.top_match ? "Remove top match" : "Mark as top match"
+                      }
+                    >
+                      {job.top_match ? "★" : "☆"}
+                    </button>
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <Link

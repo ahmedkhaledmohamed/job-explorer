@@ -23,48 +23,49 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { status, notes } = body;
+  const { status, notes, top_match, resume_version } = body;
 
   const sql = getDb();
 
-  // Check job exists
   const existing = await sql`SELECT * FROM jobs WHERE id = ${id}`;
   if (existing.length === 0) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
-  if (status === undefined && notes === undefined) {
+  const setClauses: string[] = [];
+  const values: unknown[] = [];
+  let paramIdx = 1;
+
+  if (status !== undefined) {
+    setClauses.push(`status = $${paramIdx++}`);
+    values.push(status);
+    if (status === "applied" && !existing[0].applied_at) {
+      setClauses.push("applied_at = NOW()");
+    }
+  }
+  if (notes !== undefined) {
+    setClauses.push(`notes = $${paramIdx++}`);
+    values.push(notes);
+  }
+  if (top_match !== undefined) {
+    setClauses.push(`top_match = $${paramIdx++}`);
+    values.push(top_match);
+  }
+  if (resume_version !== undefined) {
+    setClauses.push(`resume_version = $${paramIdx++}`);
+    values.push(resume_version);
+  }
+
+  if (setClauses.length === 0) {
     return NextResponse.json(
       { error: "No valid fields to update" },
       { status: 400 }
     );
   }
 
-  let result;
-
-  if (status !== undefined && notes !== undefined) {
-    // Both status and notes
-    if (status === "applied" && !existing[0].applied_at) {
-      result =
-        await sql`UPDATE jobs SET status = ${status}, notes = ${notes}, applied_at = NOW() WHERE id = ${id} RETURNING *`;
-    } else {
-      result =
-        await sql`UPDATE jobs SET status = ${status}, notes = ${notes} WHERE id = ${id} RETURNING *`;
-    }
-  } else if (status !== undefined) {
-    // Only status
-    if (status === "applied" && !existing[0].applied_at) {
-      result =
-        await sql`UPDATE jobs SET status = ${status}, applied_at = NOW() WHERE id = ${id} RETURNING *`;
-    } else {
-      result =
-        await sql`UPDATE jobs SET status = ${status} WHERE id = ${id} RETURNING *`;
-    }
-  } else {
-    // Only notes
-    result =
-      await sql`UPDATE jobs SET notes = ${notes} WHERE id = ${id} RETURNING *`;
-  }
+  values.push(id);
+  const query = `UPDATE jobs SET ${setClauses.join(", ")} WHERE id = $${paramIdx} RETURNING *`;
+  const result = await sql.query(query, values);
 
   return NextResponse.json(result[0]);
 }
