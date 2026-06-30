@@ -165,6 +165,29 @@ export type Introduction = {
   outcome_at: string | null;
 };
 
+export type ApiKey = {
+  id: number;
+  account_type: string;
+  account_id: number;
+  key_prefix: string;
+  key_hash: string;
+  name: string;
+  permissions: string[];
+  last_used: string | null;
+  created_at: string;
+};
+
+export type Webhook = {
+  id: number;
+  account_type: string;
+  account_id: number;
+  url: string;
+  events: string[];
+  secret: string | null;
+  active: boolean;
+  created_at: string;
+};
+
 export type Subscription = {
   id: number;
   account_type: "user" | "company";
