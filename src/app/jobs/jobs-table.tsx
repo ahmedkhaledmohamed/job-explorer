@@ -222,9 +222,10 @@ export function JobsTable() {
           className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Roles</option>
-          <option value="best_fit">Best Fit (Head/Director/Staff PM+EM)</option>
+          <option value="best_fit">Best Fit</option>
           <option value="pm,em,tpm,leadership">PM / EM / Leadership</option>
           <option value="pm">Product Manager</option>
+          <option value="product_engineer">Product Engineer</option>
           <option value="em">Engineering Manager</option>
           <option value="tpm">TPM</option>
           <option value="leadership">Director / VP / Head</option>
