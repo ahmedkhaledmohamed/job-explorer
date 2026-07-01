@@ -7,22 +7,37 @@ const INPUT = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:
 
 type ApiKeyInfo = { id: number; key_prefix: string; name: string; permissions: string[]; last_used: string | null; created_at: string };
 type WebhookInfo = { id: number; url: string; events: string[]; active: boolean; created_at: string };
+type BoardInfo = { id: number; name: string; board_type: string; config: Record<string, string>; last_synced: string | null; job_count: number; active: boolean; created_at: string };
+
+const BOARD_TYPES = [
+  { value: "greenhouse", label: "Greenhouse", configField: "board_token", placeholder: "e.g. anthropic, stripe" },
+  { value: "lever", label: "Lever", configField: "company_slug", placeholder: "e.g. shopify, figma" },
+  { value: "ashby", label: "Ashby", configField: "board_id", placeholder: "e.g. openai, linear" },
+];
 
 export function DeveloperSettings() {
   const [keys, setKeys] = useState<ApiKeyInfo[]>([]);
   const [hooks, setHooks] = useState<WebhookInfo[]>([]);
+  const [boards, setBoards] = useState<BoardInfo[]>([]);
   const [newKeyName, setNewKeyName] = useState("");
   const [newKey, setNewKey] = useState("");
   const [newHookUrl, setNewHookUrl] = useState("");
+  const [newBoardType, setNewBoardType] = useState("greenhouse");
+  const [newBoardName, setNewBoardName] = useState("");
+  const [newBoardConfig, setNewBoardConfig] = useState("");
+  const [syncing, setSyncing] = useState<number | null>(null);
+  const [syncResult, setSyncResult] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/keys").then((r) => r.json()),
       fetch("/api/webhooks").then((r) => r.json()),
-    ]).then(([k, h]) => {
+      fetch("/api/boards").then((r) => r.json()),
+    ]).then(([k, h, b]) => {
       setKeys(k || []);
       setHooks(h || []);
+      setBoards(b || []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -67,10 +82,126 @@ export function DeveloperSettings() {
     setHooks((prev) => prev.filter((h) => h.id !== id));
   }
 
+  async function addBoard() {
+    if (!newBoardName.trim() || !newBoardConfig.trim()) return;
+    const bt = BOARD_TYPES.find((t) => t.value === newBoardType);
+    const config = bt ? { [bt.configField]: newBoardConfig.trim() } : { board_id: newBoardConfig.trim() };
+    const res = await fetch("/api/boards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newBoardName, board_type: newBoardType, config }),
+    });
+    if (res.ok) {
+      setNewBoardName("");
+      setNewBoardConfig("");
+      const updated = await fetch("/api/boards").then((r) => r.json());
+      setBoards(updated);
+    }
+  }
+
+  async function deleteBoard(id: number) {
+    await fetch(`/api/boards?id=${id}`, { method: "DELETE" });
+    setBoards((prev) => prev.filter((b) => b.id !== id));
+  }
+
+  async function syncBoardNow(id: number) {
+    setSyncing(id);
+    setSyncResult("");
+    try {
+      const res = await fetch(`/api/boards/${id}/sync`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncResult(`Synced ${data.total} jobs (${data.inserted} new, ${data.updated} updated)`);
+        const updated = await fetch("/api/boards").then((r) => r.json());
+        setBoards(updated);
+      } else {
+        setSyncResult(`Error: ${data.error}`);
+      }
+    } catch { setSyncResult("Sync failed"); }
+    setSyncing(null);
+  }
+
   if (loading) return <div className="text-sm text-gray-400 py-12 text-center">Loading...</div>;
+
+  const selectedBoardType = BOARD_TYPES.find((t) => t.value === newBoardType);
 
   return (
     <div className="space-y-6">
+      {/* Connected Boards */}
+      <div className="rounded-lg border bg-white p-6 shadow-sm space-y-4">
+        <h2 className="text-sm font-medium text-gray-500">Connected Job Boards</h2>
+        <p className="text-xs text-gray-400">
+          Connect to ATS platforms to pull jobs directly. Supports Greenhouse, Lever, and Ashby public job boards.
+        </p>
+
+        {boards.map((b) => (
+          <div key={b.id} className="flex items-center justify-between border rounded-md p-3 bg-gray-50">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-gray-900">{b.name}</p>
+                <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-600">{b.board_type}</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {b.job_count} jobs
+                {b.last_synced ? ` · Last synced ${formatDate(b.last_synced)}` : " · Never synced"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => syncBoardNow(b.id)}
+                disabled={syncing === b.id}
+                className="rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+              >
+                {syncing === b.id ? "Syncing..." : "Sync"}
+              </button>
+              <button onClick={() => deleteBoard(b.id)} className="text-xs text-red-500 hover:underline">Remove</button>
+            </div>
+          </div>
+        ))}
+
+        {syncResult && (
+          <div className={`rounded-md p-2 text-xs ${syncResult.startsWith("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+            {syncResult}
+          </div>
+        )}
+
+        <div className="border-t pt-4 space-y-3">
+          <p className="text-xs font-medium text-gray-600">Add a board</p>
+          <div className="grid grid-cols-3 gap-2">
+            <select
+              value={newBoardType}
+              onChange={(e) => setNewBoardType(e.target.value)}
+              className="rounded-md border border-gray-300 px-2 py-2 text-sm"
+            >
+              {BOARD_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={newBoardName}
+              onChange={(e) => setNewBoardName(e.target.value)}
+              placeholder="Display name"
+              className={INPUT}
+            />
+            <input
+              type="text"
+              value={newBoardConfig}
+              onChange={(e) => setNewBoardConfig(e.target.value)}
+              placeholder={selectedBoardType?.placeholder || "Board ID"}
+              className={INPUT}
+            />
+          </div>
+          <button
+            onClick={addBoard}
+            disabled={!newBoardName.trim() || !newBoardConfig.trim()}
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          >
+            Add Board
+          </button>
+        </div>
+      </div>
+
       {/* API Keys */}
       <div className="rounded-lg border bg-white p-6 shadow-sm space-y-4">
         <h2 className="text-sm font-medium text-gray-500">API Keys</h2>

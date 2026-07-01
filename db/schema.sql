@@ -232,6 +232,19 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 );
 CREATE INDEX IF NOT EXISTS idx_subscriptions_account ON subscriptions(account_type, account_id);
 
+CREATE TABLE IF NOT EXISTS connected_boards (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  board_type TEXT NOT NULL,
+  config JSONB DEFAULT '{}',
+  last_synced TIMESTAMPTZ,
+  job_count INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_connected_boards_user ON connected_boards(user_id);
+
 CREATE TABLE IF NOT EXISTS api_keys (
   id SERIAL PRIMARY KEY,
   account_type TEXT NOT NULL,
