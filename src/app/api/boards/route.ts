@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "name and board_type required" }, { status: 400 });
   }
 
-  const validTypes = ["greenhouse", "lever", "ashby", "linkedin", "custom"];
+  const validTypes = ["greenhouse", "lever", "ashby", "workable", "smartrecruiters", "wellfound", "workday", "url_scrape", "linkedin", "custom"];
   if (!validTypes.includes(board_type)) {
     return NextResponse.json({ error: `board_type must be one of: ${validTypes.join(", ")}` }, { status: 400 });
   }

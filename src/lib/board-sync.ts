@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import type { NeonQueryFunction } from "@neondatabase/serverless";
+import { generate } from "@/lib/ai";
 
 type Job = {
   id: string;
@@ -22,6 +23,21 @@ async function fetchJson(url: string): Promise<unknown> {
   return res.json();
 }
 
+async function fetchHtml(url: string): Promise<string> {
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      "Accept": "text/html",
+    },
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.text();
+}
+
+function titleCase(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 async function syncGreenhouse(boardToken: string): Promise<Job[]> {
   const data = await fetchJson(
     `https://boards-api.greenhouse.io/v1/boards/${boardToken}/jobs?content=true`
@@ -30,7 +46,7 @@ async function syncGreenhouse(boardToken: string): Promise<Job[]> {
   return (data.jobs || []).map((j) => ({
     id: makeId(j.title, boardToken, j.absolute_url),
     title: j.title,
-    company: boardToken.charAt(0).toUpperCase() + boardToken.slice(1),
+    company: titleCase(boardToken),
     location: j.location?.name || null,
     url: j.absolute_url,
     source: "greenhouse",
@@ -47,7 +63,7 @@ async function syncLever(companySlug: string): Promise<Job[]> {
   return (data || []).map((j) => ({
     id: makeId(j.text, companySlug, j.hostedUrl),
     title: j.text,
-    company: companySlug.charAt(0).toUpperCase() + companySlug.slice(1),
+    company: titleCase(companySlug),
     location: j.categories?.location || null,
     url: j.hostedUrl,
     source: "lever",
@@ -59,17 +75,88 @@ async function syncLever(companySlug: string): Promise<Job[]> {
 async function syncAshby(boardId: string): Promise<Job[]> {
   const data = await fetchJson(
     `https://api.ashbyhq.com/posting-api/job-board/${boardId}`
-  ) as { jobs: Array<{ id: string; title: string; location: string; publishedAt: string; jobUrl: string; descriptionHtml: string }> };
+  ) as { jobs: Array<{ id: string; title: string; location: string; jobUrl: string; descriptionHtml: string }> };
 
   return (data.jobs || []).map((j) => ({
     id: makeId(j.title, boardId, j.jobUrl || ""),
     title: j.title,
-    company: boardId.charAt(0).toUpperCase() + boardId.slice(1),
+    company: titleCase(boardId),
     location: j.location || null,
     url: j.jobUrl || `https://jobs.ashbyhq.com/${boardId}/${j.id}`,
     source: "ashby",
     description: j.descriptionHtml || null,
     ats_job_id: j.id,
+  }));
+}
+
+async function syncWorkable(subdomain: string): Promise<Job[]> {
+  const data = await fetchJson(
+    `https://apply.workable.com/api/v1/widget/accounts/${subdomain}`
+  ) as { jobs: Array<{ title: string; shortcode: string; city: string; state: string; country: string; department: string; url: string }> };
+
+  return (data.jobs || []).map((j) => ({
+    id: makeId(j.title, subdomain, j.url || j.shortcode),
+    title: j.title,
+    company: titleCase(subdomain),
+    location: [j.city, j.state, j.country].filter(Boolean).join(", ") || null,
+    url: j.url || `https://apply.workable.com/${subdomain}/j/${j.shortcode}`,
+    source: "workable",
+    description: null,
+    ats_job_id: j.shortcode,
+  }));
+}
+
+async function syncSmartRecruiters(companyId: string): Promise<Job[]> {
+  const data = await fetchJson(
+    `https://api.smartrecruiters.com/v1/companies/${companyId}/postings`
+  ) as { content: Array<{ id: string; name: string; location: { city: string; region: string; country: string }; releasedDate: string; ref: string }> };
+
+  return (data.content || []).map((j) => ({
+    id: makeId(j.name, companyId, j.ref || j.id),
+    title: j.name,
+    company: titleCase(companyId),
+    location: j.location ? [j.location.city, j.location.region, j.location.country].filter(Boolean).join(", ") : null,
+    url: j.ref || `https://jobs.smartrecruiters.com/${companyId}/${j.id}`,
+    source: "smartrecruiters",
+    description: null,
+    ats_job_id: j.id,
+  }));
+}
+
+const SCRAPE_PROMPT = `You are a job listing extractor. Given the HTML content of a careers/jobs page, extract all job listings you can find.
+
+Return a JSON object:
+{
+  "company": "Company name (infer from page content)",
+  "jobs": [
+    {
+      "title": "Job title",
+      "location": "Location or null",
+      "url": "Full URL to the job posting or null",
+      "description": "Brief description if visible, or null"
+    }
+  ]
+}
+
+Extract ALL jobs visible on the page. If no jobs are found, return an empty jobs array.`;
+
+async function syncUrlScrape(pageUrl: string, boardName: string): Promise<Job[]> {
+  const html = await fetchHtml(pageUrl);
+  const trimmed = html.slice(0, 30000);
+
+  const { content } = await generate(SCRAPE_PROMPT, `URL: ${pageUrl}\n\nHTML:\n${trimmed}`);
+  const parsed = JSON.parse(content);
+
+  const company = parsed.company || boardName;
+  return (parsed.jobs || []).map((j: { title: string; location: string | null; url: string | null; description: string | null }) => ({
+    id: makeId(j.title, company, j.url || pageUrl),
+    title: j.title,
+    company,
+    location: j.location || null,
+    url: j.url || pageUrl,
+    source: "url_scrape",
+    description: j.description || null,
+    ats_job_id: null,
   }));
 }
 
@@ -89,6 +176,17 @@ export async function syncBoard(
       break;
     case "ashby":
       jobs = await syncAshby(config.board_id || "");
+      break;
+    case "workable":
+      jobs = await syncWorkable(config.subdomain || config.board_id || "");
+      break;
+    case "smartrecruiters":
+      jobs = await syncSmartRecruiters(config.company_id || config.board_id || "");
+      break;
+    case "wellfound":
+    case "workday":
+    case "url_scrape":
+      jobs = await syncUrlScrape(config.url || "", config.name || boardType);
       break;
     default:
       throw new Error(`Unsupported board type: ${boardType}`);
