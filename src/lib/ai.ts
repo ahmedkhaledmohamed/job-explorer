@@ -15,11 +15,11 @@ const PROVIDERS: Provider[] = [
     defaultModel: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
   },
   {
-    name: "grok",
-    url: "https://api.x.ai/v1/chat/completions",
-    keyEnv: "GROK_API_KEY",
-    modelEnv: "GROK_MODEL",
-    defaultModel: "grok-3-mini",
+    name: "groq",
+    url: "https://api.groq.com/openai/v1/chat/completions",
+    keyEnv: "GROQ_API_KEY",
+    modelEnv: "GROQ_MODEL",
+    defaultModel: "llama-3.3-70b-versatile",
   },
 ];
 
