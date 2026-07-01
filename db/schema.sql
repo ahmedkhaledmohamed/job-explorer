@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   provider_id TEXT,
   invite_code TEXT,
   wizard_progress JSONB DEFAULT '{}',
+  agent_settings JSONB DEFAULT '{"threshold": 0.5, "max_per_day": 5, "digest_enabled": false, "digest_email": ""}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   last_login TIMESTAMPTZ
 );
@@ -231,6 +232,30 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_subscriptions_account ON subscriptions(account_type, account_id);
+
+CREATE TABLE IF NOT EXISTS agent_tasks (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  task_type TEXT NOT NULL DEFAULT 'apply',
+  status TEXT NOT NULL DEFAULT 'queued',
+  score FLOAT,
+  gaps JSONB DEFAULT '[]',
+  result JSONB DEFAULT '{}',
+  error TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, job_id)
+);
+CREATE INDEX IF NOT EXISTS idx_agent_tasks_user ON agent_tasks(user_id, status);
+
+CREATE TABLE IF NOT EXISTS email_digests (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  digest_type TEXT NOT NULL DEFAULT 'daily_matches',
+  job_ids TEXT[] DEFAULT '{}',
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 CREATE TABLE IF NOT EXISTS connected_boards (
   id SERIAL PRIMARY KEY,
