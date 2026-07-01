@@ -42,16 +42,37 @@ export function ResumeImport({
   onImport: (data: ImportedData) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"text" | "url">("text");
   const [text, setText] = useState("");
+  const [profileUrl, setProfileUrl] = useState("");
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<ImportedData | null>(null);
 
   async function handleExtract() {
-    if (text.trim().length < 50) {
-      setError("Paste at least 50 characters of resume text");
-      return;
+    let importText = text;
+
+    if (mode === "url") {
+      if (!profileUrl.trim()) { setError("Enter a URL"); return; }
+      setImporting(true);
+      setError("");
+      setPreview(null);
+      try {
+        const fetchRes = await fetch(profileUrl, {
+          headers: { "User-Agent": "Mozilla/5.0", Accept: "text/html" },
+        });
+        if (!fetchRes.ok) { setError(`Could not fetch URL (${fetchRes.status})`); setImporting(false); return; }
+        const html = await fetchRes.text();
+        importText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 10000);
+      } catch {
+        setError("Could not fetch URL — try pasting the page text instead");
+        setImporting(false);
+        return;
+      }
+    } else {
+      if (importText.trim().length < 50) { setError("Paste at least 50 characters"); return; }
     }
+
     setImporting(true);
     setError("");
     setPreview(null);
@@ -60,7 +81,7 @@ export function ResumeImport({
       const res = await fetch("/api/profile/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: importText }),
       });
       const data = await res.json();
 
@@ -118,31 +139,58 @@ export function ResumeImport({
         </button>
       </div>
 
-      <p className="text-xs text-blue-600">
-        Paste your resume text below (copy from a PDF, markdown file, or plain text).
-        AI will extract structured fields to populate your profile.
-      </p>
+      {/* Mode tabs */}
+      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 w-fit">
+        <button type="button" onClick={() => setMode("text")}
+          className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${mode === "text" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+          Paste Text
+        </button>
+        <button type="button" onClick={() => setMode("url")}
+          className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${mode === "url" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"}`}>
+          Import from URL
+        </button>
+      </div>
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={"# Ahmed Khaled Mohamed\n\n> Senior Product Manager — Platform & Applied AI\n\n## Experience\n\n### Spotify — Toronto\n..."}
-        rows={8}
-        className={`${INPUT} resize-none font-mono text-xs`}
-      />
+      {mode === "text" ? (
+        <>
+          <p className="text-xs text-blue-600">
+            Paste resume text (from PDF, markdown, or plain text). AI extracts structured fields.
+          </p>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={"# Ahmed Khaled Mohamed\n\n> Senior Product Manager\n\n## Experience\n..."}
+            rows={8}
+            className={`${INPUT} resize-none font-mono text-xs`}
+          />
+        </>
+      ) : (
+        <>
+          <p className="text-xs text-blue-600">
+            Paste a LinkedIn, Wellfound, or any profile URL. We&apos;ll fetch the page and extract your info.
+          </p>
+          <input
+            type="url"
+            value={profileUrl}
+            onChange={(e) => setProfileUrl(e.target.value)}
+            placeholder="https://linkedin.com/in/... or https://wellfound.com/u/..."
+            className={INPUT}
+          />
+        </>
+      )}
 
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleExtract}
-          disabled={importing || text.trim().length < 50}
+          disabled={importing || (mode === "text" ? text.trim().length < 50 : !profileUrl.trim())}
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors disabled:opacity-50"
         >
           {importing ? "Extracting..." : "Extract with AI"}
         </button>
-        <span className="text-xs text-gray-400">
-          {text.length} characters
-        </span>
+        {mode === "text" && (
+          <span className="text-xs text-gray-400">{text.length} characters</span>
+        )}
       </div>
 
       {error && (

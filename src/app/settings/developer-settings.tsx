@@ -10,9 +10,13 @@ type WebhookInfo = { id: number; url: string; events: string[]; active: boolean;
 type BoardInfo = { id: number; name: string; board_type: string; config: Record<string, string>; last_synced: string | null; job_count: number; active: boolean; created_at: string };
 
 const BOARD_TYPES = [
-  { value: "greenhouse", label: "Greenhouse", configField: "board_token", placeholder: "e.g. anthropic, stripe" },
-  { value: "lever", label: "Lever", configField: "company_slug", placeholder: "e.g. shopify, figma" },
-  { value: "ashby", label: "Ashby", configField: "board_id", placeholder: "e.g. openai, linear" },
+  { value: "greenhouse", label: "Greenhouse", configField: "board_token", inputLabel: "Company slug", placeholder: "anthropic", help: "Find it in the URL: boards.greenhouse.io/anthropic/jobs" },
+  { value: "lever", label: "Lever", configField: "company_slug", inputLabel: "Company slug", placeholder: "shopify", help: "Find it in the URL: jobs.lever.co/shopify" },
+  { value: "ashby", label: "Ashby", configField: "board_id", inputLabel: "Board ID", placeholder: "linear", help: "Find it in the URL: jobs.ashbyhq.com/linear" },
+  { value: "workable", label: "Workable", configField: "subdomain", inputLabel: "Subdomain", placeholder: "revolut", help: "Find it in the URL: apply.workable.com/revolut" },
+  { value: "smartrecruiters", label: "SmartRecruiters", configField: "company_id", inputLabel: "Company ID", placeholder: "Shopify", help: "Find it in the URL: jobs.smartrecruiters.com/Shopify" },
+  { value: "wellfound", label: "Wellfound", configField: "url", inputLabel: "Jobs page URL", placeholder: "https://wellfound.com/company/notion/jobs", help: "Paste the company's Wellfound jobs page URL" },
+  { value: "workday", label: "Workday / Career Site", configField: "url", inputLabel: "Career page URL", placeholder: "https://amazon.jobs", help: "Paste any company careers page — AI extracts job listings" },
 ];
 
 export function DeveloperSettings() {
@@ -85,7 +89,12 @@ export function DeveloperSettings() {
   async function addBoard() {
     if (!newBoardName.trim() || !newBoardConfig.trim()) return;
     const bt = BOARD_TYPES.find((t) => t.value === newBoardType);
-    const config = bt ? { [bt.configField]: newBoardConfig.trim() } : { board_id: newBoardConfig.trim() };
+    const config: Record<string, string> = bt
+      ? { [bt.configField]: newBoardConfig.trim() }
+      : { board_id: newBoardConfig.trim() };
+    if (["wellfound", "workday"].includes(newBoardType)) {
+      config.name = newBoardName.trim();
+    }
     const res = await fetch("/api/boards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,7 +140,7 @@ export function DeveloperSettings() {
       <div className="rounded-lg border bg-white p-6 shadow-sm space-y-4">
         <h2 className="text-sm font-medium text-gray-500">Connected Job Boards</h2>
         <p className="text-xs text-gray-400">
-          Connect to ATS platforms to pull jobs directly. Supports Greenhouse, Lever, and Ashby public job boards.
+          Connect to job boards and career sites. No API keys needed — just enter the company slug or paste a URL.
         </p>
 
         {boards.map((b) => (
@@ -167,30 +176,46 @@ export function DeveloperSettings() {
 
         <div className="border-t pt-4 space-y-3">
           <p className="text-xs font-medium text-gray-600">Add a board</p>
-          <div className="grid grid-cols-3 gap-2">
-            <select
-              value={newBoardType}
-              onChange={(e) => setNewBoardType(e.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-2 text-sm"
-            >
-              {BOARD_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-            <input
-              type="text"
-              value={newBoardName}
-              onChange={(e) => setNewBoardName(e.target.value)}
-              placeholder="Display name"
-              className={INPUT}
-            />
-            <input
-              type="text"
-              value={newBoardConfig}
-              onChange={(e) => setNewBoardConfig(e.target.value)}
-              placeholder={selectedBoardType?.placeholder || "Board ID"}
-              className={INPUT}
-            />
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Platform</label>
+                <select
+                  value={newBoardType}
+                  onChange={(e) => { setNewBoardType(e.target.value); setNewBoardConfig(""); }}
+                  className="w-full rounded-md border border-gray-300 px-2 py-2 text-sm"
+                >
+                  {BOARD_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Display name</label>
+                <input
+                  type="text"
+                  value={newBoardName}
+                  onChange={(e) => setNewBoardName(e.target.value)}
+                  placeholder="e.g. Anthropic, Stripe"
+                  className={INPUT}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                {selectedBoardType?.inputLabel || "Board ID"}
+              </label>
+              <input
+                type="text"
+                value={newBoardConfig}
+                onChange={(e) => setNewBoardConfig(e.target.value)}
+                placeholder={selectedBoardType?.placeholder || ""}
+                className={INPUT}
+              />
+              {selectedBoardType?.help && (
+                <p className="text-[11px] text-gray-400 mt-1">{selectedBoardType.help}</p>
+              )}
+            </div>
           </div>
           <button
             onClick={addBoard}
