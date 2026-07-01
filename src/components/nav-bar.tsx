@@ -13,8 +13,8 @@ const PRIMARY_LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/jobs", label: "Jobs" },
   { href: "/pipeline", label: "Pipeline" },
+  { href: "/agent", label: "Agent" },
   { href: "/insights", label: "Insights" },
-  { href: "/companies", label: "Companies" },
 ];
 
 const MORE_LINKS = [

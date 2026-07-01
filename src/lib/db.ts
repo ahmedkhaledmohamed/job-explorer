@@ -165,6 +165,30 @@ export type Introduction = {
   outcome_at: string | null;
 };
 
+export type AgentTask = {
+  id: number;
+  user_id: number;
+  job_id: string;
+  task_type: string;
+  status: "queued" | "scoring" | "preparing" | "needs_input" | "ready" | "submitting" | "submitted" | "failed";
+  score: number | null;
+  gaps: Array<{ field: string; label: string; required: boolean }>;
+  result: Record<string, unknown>;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+  // joined fields
+  job_title?: string;
+  job_company?: string;
+};
+
+export type AgentSettings = {
+  threshold: number;
+  max_per_day: number;
+  digest_enabled: boolean;
+  digest_email: string;
+};
+
 export type ConnectedBoard = {
   id: number;
   user_id: number;

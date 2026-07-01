@@ -52,6 +52,8 @@ export function JobDetail({
   const [mutualMatching, setMutualMatching] = useState(false);
   const [expressing, setExpressing] = useState(false);
   const [expressed, setExpressed] = useState(false);
+  const [delegating, setDelegating] = useState(false);
+  const [delegated, setDelegated] = useState(false);
   type MutualResult = { candidate_to_job: { score: number; strengths: string[]; gaps: string[] }; job_to_candidate: { score: number; strengths: string[]; concerns: string[] }; overall_score: number; summary: string };
   const [mutualResult, setMutualResult] = useState<MutualResult | null>(
     job.match_details && (job.match_details as Record<string, unknown>).mutual
@@ -175,6 +177,19 @@ export function JobDetail({
     } finally {
       setGenerating(false);
     }
+  }
+
+  async function delegateToAgent() {
+    setDelegating(true);
+    try {
+      const res = await fetch("/api/agent/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: job.id }),
+      });
+      if (res.ok) setDelegated(true);
+    } catch { /* ignore */ }
+    setDelegating(false);
   }
 
   async function expressInterest() {
@@ -373,6 +388,20 @@ export function JobDetail({
               className="inline-flex items-center rounded-md bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-400 transition-colors disabled:opacity-50"
             >
               {expressing ? "Sending..." : "Express Interest"}
+            </button>
+          )}
+
+          {delegated ? (
+            <Link href="/agent" className="inline-flex items-center rounded-md bg-purple-100 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-200">
+              Delegated → View Agent
+            </Link>
+          ) : (
+            <button
+              onClick={delegateToAgent}
+              disabled={delegating}
+              className="inline-flex items-center rounded-md bg-purple-600 px-3 py-2 text-sm font-medium text-white hover:bg-purple-500 transition-colors disabled:opacity-50"
+            >
+              {delegating ? "Delegating..." : "Delegate to Agent"}
             </button>
           )}
         </div>
