@@ -165,6 +165,18 @@ export type Introduction = {
   outcome_at: string | null;
 };
 
+export type ConnectedBoard = {
+  id: number;
+  user_id: number;
+  name: string;
+  board_type: string;
+  config: Record<string, string>;
+  last_synced: string | null;
+  job_count: number;
+  active: boolean;
+  created_at: string;
+};
+
 export type ApiKey = {
   id: number;
   account_type: string;
