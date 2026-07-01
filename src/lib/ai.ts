@@ -42,7 +42,7 @@ async function generateWithProvider(
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: systemPrompt + (provider.name === "groq" && !systemPrompt.toLowerCase().includes("json") ? "\nRespond in JSON format." : "") },
         { role: "user", content: userMessage },
       ],
       temperature: 0.7,
