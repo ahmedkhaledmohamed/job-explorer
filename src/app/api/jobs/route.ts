@@ -133,6 +133,15 @@ export async function GET(request: NextRequest) {
   // Role type filter
   if (role) {
     const rolePatterns: Record<string, string[]> = {
+      best_fit: [
+        "%head of product%", "%product lead%", "%director of product%", "%director, product%",
+        "%vp product%", "%staff product manager%", "%principal product manager%", "%group product manager%",
+        "%head of engineering%", "%director of engineering%", "%director, engineering%", "%vp engineering%",
+        "%director, developer experience%", "%head of developer experience%",
+        "%pm, ai%", "%pm, platform%", "%pm, infrastructure%", "%head of ai%",
+        "%senior product manager%platform%", "%senior product manager%ai%",
+        "%engineering manager%platform%", "%engineering manager%ai%", "%engineering manager%infrastructure%",
+      ],
       pm: ["%product manager%", "%product lead%", "%head of product%", "%director of product%", "%director, product%", "%vp product%", "%group product manager%"],
       em: ["%engineering manager%", "%head of engineering%", "%director of engineering%", "%director, engineering%", "%vp engineering%"],
       tpm: ["%technical program manager%", "%program manager%"],
