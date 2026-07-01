@@ -67,6 +67,8 @@ export async function GET(request: NextRequest) {
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
   const topMatch = searchParams.get("top_match") || "";
+  const role = searchParams.get("role") || "";
+  const loc = searchParams.get("location") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 100);
   const sort = searchParams.get("sort") || "first_seen";
@@ -126,6 +128,53 @@ export async function GET(request: NextRequest) {
     conditions.push("uj.top_match = TRUE");
   } else if (topMatch === "false") {
     conditions.push("(uj.top_match IS NULL OR uj.top_match = FALSE)");
+  }
+
+  // Role type filter
+  if (role) {
+    const rolePatterns: Record<string, string[]> = {
+      pm: ["%product manager%", "%product lead%", "%head of product%", "%director of product%", "%director, product%", "%vp product%", "%group product manager%"],
+      em: ["%engineering manager%", "%head of engineering%", "%director of engineering%", "%director, engineering%", "%vp engineering%"],
+      tpm: ["%technical program manager%", "%program manager%"],
+      leadership: ["%director%", "%head of%", "%vp %", "%vice president%"],
+      platform: ["%platform%"],
+      ai: ["%ai %", "%machine learning%", "%ml %", "%llm%", "%artificial intelligence%"],
+    };
+    const selectedRoles = role.split(",").filter((r) => rolePatterns[r]);
+    if (selectedRoles.length > 0) {
+      const allPatterns: string[] = [];
+      for (const r of selectedRoles) {
+        for (const p of rolePatterns[r]) {
+          allPatterns.push(`LOWER(j.title) LIKE $${paramIndex}`);
+          params.push(p);
+          paramIndex++;
+        }
+      }
+      conditions.push(`(${allPatterns.join(" OR ")})`);
+    }
+  }
+
+  // Location filter
+  if (loc) {
+    const locPatterns: Record<string, string[]> = {
+      toronto: ["%toronto%"],
+      canada: ["%canada%", "%toronto%", "%vancouver%", "%montreal%", "%ontario%", "%waterloo%"],
+      remote: ["%remote%", "%anywhere%", "%distributed%"],
+      us: ["%united states%", "%new york%", "%san francisco%", "%seattle%", "%austin%", "%, us%"],
+      europe: ["%london%", "%berlin%", "%amsterdam%", "%dublin%", "%europe%"],
+    };
+    const selectedLocs = loc.split(",").filter((l) => locPatterns[l]);
+    if (selectedLocs.length > 0) {
+      const allPatterns: string[] = [];
+      for (const l of selectedLocs) {
+        for (const p of locPatterns[l]) {
+          allPatterns.push(`LOWER(COALESCE(j.location, '')) LIKE $${paramIndex}`);
+          params.push(p);
+          paramIndex++;
+        }
+      }
+      conditions.push(`(${allPatterns.join(" OR ")})`);
+    }
   }
 
   const whereClause = conditions.join(" AND ");

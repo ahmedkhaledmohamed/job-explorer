@@ -22,6 +22,8 @@ export function JobsTable() {
   const status = searchParams.get("status") || "";
   const source = searchParams.get("source") || "";
   const topMatch = searchParams.get("top_match") || "";
+  const role = searchParams.get("role") || "pm,em,tpm,leadership";
+  const loc = searchParams.get("location") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
   const sort = searchParams.get("sort") || "first_seen";
   const order = searchParams.get("order") || "desc";
@@ -33,6 +35,8 @@ export function JobsTable() {
     if (status) params.set("status", status);
     if (source) params.set("source", source);
     if (topMatch) params.set("top_match", topMatch);
+    if (role) params.set("role", role);
+    if (loc) params.set("location", loc);
     params.set("page", String(page));
     params.set("limit", "20");
     params.set("sort", sort);
@@ -44,7 +48,7 @@ export function JobsTable() {
     setTotal(data.total || 0);
     setTotalPages(data.totalPages || 0);
     setLoading(false);
-  }, [q, status, source, topMatch, page, sort, order]);
+  }, [q, status, source, topMatch, role, loc, page, sort, order]);
 
   useEffect(() => {
     fetchJobs();
@@ -210,6 +214,36 @@ export function JobsTable() {
           <option value="ashby">Ashby</option>
           <option value="linkedin">LinkedIn</option>
           <option value="workday">Workday</option>
+        </select>
+
+        <select
+          value={role}
+          onChange={(e) => updateParams({ role: e.target.value })}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Roles</option>
+          <option value="pm,em,tpm,leadership">PM / EM / Leadership</option>
+          <option value="pm">Product Manager</option>
+          <option value="em">Engineering Manager</option>
+          <option value="tpm">TPM</option>
+          <option value="leadership">Director / VP / Head</option>
+          <option value="platform">Platform</option>
+          <option value="ai">AI / ML</option>
+        </select>
+
+        <select
+          value={loc}
+          onChange={(e) => updateParams({ location: e.target.value })}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Locations</option>
+          <option value="toronto">Toronto</option>
+          <option value="canada">Canada</option>
+          <option value="remote">Remote</option>
+          <option value="toronto,remote">Toronto + Remote</option>
+          <option value="canada,remote">Canada + Remote</option>
+          <option value="us">United States</option>
+          <option value="europe">Europe</option>
         </select>
 
         <button
