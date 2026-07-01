@@ -139,6 +139,7 @@ export async function GET(request: NextRequest) {
         "%head of engineering%", "%director of engineering%", "%director, engineering%", "%vp engineering%",
         "%director, developer experience%", "%head of developer experience%",
         "%product engineer%", "%founding engineer%",
+        "%pm, ai%", "%pm, platform%", "%pm, infrastructure%", "%head of ai%",
         "%senior product manager%platform%", "%senior product manager%ai%", "%senior product manager%infrastructure%",
         "%engineering manager%platform%", "%engineering manager%ai%", "%engineering manager%infrastructure%",
         "%core product lead%",
