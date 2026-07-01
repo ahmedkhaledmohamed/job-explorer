@@ -1,6 +1,6 @@
 # Resume — Ahmed Khaled Mohamed
 
-> Senior Engineering Manager – Platform, Mobile & AI Systems
+> Platform Engineering Leader — 18 Engineers, 700M Users, Still Ships Code
 
 ## Contact
 
@@ -14,7 +14,7 @@
 
 ## Summary
 
-Engineering leader with 6 years managing platform teams and 12 years total in software. Scaled engineering organizations from single squads to multi-team domains (18 engineers, 3 squads), managed managers, and shipped platform infrastructure serving 700M+ users at Spotify and 40M+ at Delivery Hero. Build the tools and data systems my teams use — dashboards, data pipelines, knowledge systems. Also ship on the side — AI app on the App Store, open-source PM framework on npm. I lead with technical credibility and a product mindset: my teams don't just deliver features, they accelerate entire organizations.
+Engineering leader with 6 years managing platform teams and 12 years total in software. Scaled engineering organizations from single squads to multi-team domains (18 engineers, 3 squads), managed managers, and shipped platform infrastructure serving 700M+ users at Spotify and 40M+ at Delivery Hero. Grew Server-Driven UI platform adoption from 20% to 80% in 6 months. Transitioned to PM in 2025 to drive platform strategy at organization scale — the EM background shapes how I design platforms: I understand the operational cost of abstractions and what developers actually need. Still ship on the side — 9 products including an App Store app shipped in 8 weeks and 3 platforms from 1 API in 2 weeks.
 
 ---
 
@@ -121,8 +121,9 @@ LLM Integration (Claude, GPT-4) | RAG Systems | Multi-Model Orchestration | Prom
 
 ---
 
-## Selected Projects
+## What I Ship (Side Projects)
 
-**Zia** — AI Enabled Family Planning Platform: SwiftUI + FastAPI + Claude/GPT-4 + RAG _(2025 – Present)_
-
-**Bezier** — AI design tool: Electron + React + Claude + Ideogram API _(MVP shipped)_
+**Parallax** — Web + iOS + Android from 1 API in 2 weeks (Next.js, SwiftUI, Jetpack Compose)
+**Zia** — Concept to App Store in 8 weeks (SwiftUI, FastAPI, Claude + GPT-4, RAG)
+**OnRoute** — Native iOS + Android travel routing (SwiftUI, Jetpack Compose, Vercel)
+**Khalil** — Autonomous AI agent, 59 skills, 910 tests, self-healing (Python, FastAPI)

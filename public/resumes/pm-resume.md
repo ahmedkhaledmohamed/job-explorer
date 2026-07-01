@@ -1,6 +1,6 @@
 # Resume — Ahmed Khaled Mohamed
 
-> Senior Product Manager — Platform & Applied AI
+> Product & Engineering Leader — Platform Systems at Spotify (700M Users)
 
 ## Contact
 
@@ -13,7 +13,7 @@
 
 ## Summary
 
-Product leader with engineering depth. Own Spotify's messaging platform for 700M+ users — push, in-app, inbox. Build the tools and data systems my team uses to make decisions — dashboards, data pipelines, knowledge systems. Before product, 6 years as an Engineering Manager leading platform teams across Berlin and Asia. 12 years across engineering, management, and product. MSc Computer Science (Bonn).
+Platform leader who builds. Own Spotify's messaging platform for 700M+ users — push, in-app, inbox — with 20+ partner teams depending on the platform. Before product, 6 years as an Engineering Manager — managed 18 engineers across 3 squads, grew Server-Driven UI platform adoption from 20% to 80% at Delivery Hero. Build the dashboards, data pipelines, and tools my team uses to make decisions — I don't delegate that. 12 years across engineering, management, and product. MSc Computer Science (Bonn).
 
 ---
 
@@ -56,9 +56,9 @@ _2022 – 2025_
 **Senior Engineering Manager / Domain Lead - UI Platforms**
 _2021 – 2022_
 
-- Owned the Server-Driven UI Platform enabling rapid experimentation and remote configuration of mobile experiences across multiple brands and markets
-- Defined product strategy, adoption metrics, and success frameworks for platform adoption, driving significant reductions in app-release dependency
-- Led three squads and mentored engineering leadership, driving alignment between product, design, and technical strategy
+- Led Server-Driven UI platform domain: 3 squads, 18 engineers across Berlin and Asia, serving 50+ markets
+- Grew platform adoption from 20% to 80% in 6 months — treated internal platform as a product with adoption metrics and developer experience
+- Mentored 2 Engineering Managers to promotion; defined 18-month technical roadmap
 
 **Software Engineering Manager - Discovery & Navigation**
 _2019 – 2021_
@@ -86,17 +86,12 @@ _2013 – 2017_
 
 ---
 
-## Side Projects
+## What I Ship (Side Projects)
 
-**Zia** — AI family assistant shipped to App Store in 8 weeks (SwiftUI, FastAPI, Claude + GPT-4, RAG with pgvector)
-
-**PM-AI-Partner-Framework** — Open-source framework for AI-augmented PM work, published on [GitHub](https://github.com/ahmedkhaledmohamed/PM-AI-Partner-Framework) and npm
-
-**Khalil** — Personal AI agent with hybrid retrieval and self-repair loop, running daily (Python, SQLite, Ollama, Claude)
-
-**The Hub** — Personal command center published to [npm](https://www.npmjs.com/package/the-hub) (Next.js, TypeScript, SQLite, FTS5 + vector search)
-
-**Bezier** — AI design tool with semantic region control (Electron, React, Claude, Ideogram API)
+**Parallax** — Web + iOS + Android from 1 API in 2 weeks. Personalized restaurant re-scorer with LLM eval framework.
+**Zia** — Concept to App Store in 8 weeks. AI family assistant (SwiftUI, FastAPI, Claude + GPT-4, RAG).
+**PM-AI-Partner** — Published to npm. AI framework for PM workflows (12 skills, 6 workflows).
+**Khalil** — Autonomous AI agent running 24/7 (59 skills, 910 tests, 24 behavioral contracts).
 
 ---
 
