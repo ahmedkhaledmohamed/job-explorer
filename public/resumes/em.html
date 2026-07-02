@@ -9,29 +9,29 @@
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 10pt; line-height: 1.35; color: #1a1a1a; }
   .page { display: flex; max-width: 8.5in; min-height: 11in; margin: 0 auto; }
 
-  .sidebar { width: 2.3in; background: #2d3748; color: #e2e8f0; padding: 0.3in 0.2in; flex-shrink: 0; }
+  .sidebar { width: 2.3in; background: #2d3748; color: #e2e8f0; padding: 0.35in 0.22in; flex-shrink: 0; }
   .sidebar h1 { font-size: 15pt; font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 2pt; }
   .sidebar .headline { font-size: 8pt; color: #a0aec0; margin-bottom: 10pt; line-height: 1.3; }
-  .sidebar h3 { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7pt; color: #ecc94b; margin: 8pt 0 3pt; }
+  .sidebar h3 { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6pt; color: #ecc94b; margin: 8pt 0 3pt; }
   .sidebar p { font-size: 8pt; line-height: 1.3; color: #cbd5e0; }
   .sidebar a { color: #90cdf4; text-decoration: none; font-size: 8pt; }
   .sidebar .ci { margin-bottom: 2pt; font-size: 8pt; }
   .sidebar .edu-entry { margin-bottom: 4pt; }
   .sidebar .school { font-weight: 600; color: #e2e8f0; font-size: 8pt; }
-  .sidebar .degree { font-size: 7.5pt; color: #a0aec0; }
+  .sidebar .degree { font-size: 7pt; color: #a0aec0; }
 
-  .main { flex: 1; padding: 0.3in 0.28in; }
-  .main h2 { font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; color: #2d3748; border-bottom: 1.5pt solid #cbd5e0; padding-bottom: 2pt; margin: 7pt 0 4pt; }
+  .main { flex: 1; padding: 0.35in 0.3in; }
+  .main h2 { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; color: #2d3748; border-bottom: 1.5pt solid #cbd5e0; padding-bottom: 2pt; margin: 8pt 0 4pt; }
   .main h2:first-child { margin-top: 0; }
-  .summary { font-size: 9pt; line-height: 1.35; margin-bottom: 4pt; color: #2d3748; }
+  .summary { font-size: 9pt; line-height: 1.4; margin-bottom: 5pt; color: #2d3748; }
 
   .job { margin-bottom: 5pt; }
   .job-header { display: flex; justify-content: space-between; align-items: baseline; }
-  .job-title { font-weight: 700; font-size: 9pt; }
-  .job-date { font-size: 7.5pt; color: #718096; white-space: nowrap; }
-  .job-company { font-size: 8pt; color: #718096; margin-bottom: 1pt; }
+  .job-title { font-weight: 700; font-size: 9.5pt; }
+  .job-date { font-size: 8pt; color: #718096; white-space: nowrap; }
+  .job-company { font-size: 8.5pt; color: #718096; margin-bottom: 1pt; }
   .job ul { padding-left: 12pt; }
-  .job li { font-size: 8pt; line-height: 1.3; margin-bottom: 1pt; }
+  .job li { font-size: 9pt; line-height: 1.3; margin-bottom: 1.5pt; }
 
   @media print {
     @page { margin: 0; size: letter; }
@@ -83,23 +83,22 @@
 
   <div class="main">
     <h2>Summary</h2>
-    <p class="summary">Engineering leader with 6 years managing platform teams and 12 years total in software. Scaled engineering organizations from single squads to multi-team domains (18 engineers, 3 squads), managed managers, and shipped platform infrastructure serving 700M+ users at Spotify and 40M+ at Delivery Hero. Grew Server-Driven UI platform adoption from 20% to 80% in 6 months. I lead with technical credibility and a product mindset: my teams don't just deliver features, they accelerate entire organizations.</p>
+    <p class="summary">Engineering leader with 6 years managing platform teams and 12 years total in software. Scaled organizations from single squads to multi-team domains (18 engineers, 3 squads), managed managers, and shipped platform infrastructure serving 700M+ users at Spotify and 40M+ at Delivery Hero. Grew Server-Driven UI platform adoption from 20% to 80% in 6 months. Transitioned to PM in 2025 to drive platform strategy at org scale. I lead with technical credibility and a product mindset.</p>
 
     <h2>Experience</h2>
 
     <div class="job">
       <div class="job-header">
-        <span class="job-title">Platform Lead - Messaging Infrastructure</span>
+        <span class="job-title">Senior Technical Product Manager - Messaging</span>
         <span class="job-date">Sep 2025 – Present</span>
       </div>
       <div class="job-company">Spotify · Toronto, Canada (3 years 9 months at Spotify)</div>
       <ul>
-        <li>Driving technical roadmap for messaging infrastructure (push, in-app, inbox) serving 700M+ users across iOS, Android, Web</li>
+        <li>Transitioned from EM to PM to drive platform strategy at organization scale for messaging infrastructure (push, in-app, inbox) serving 700M+ users</li>
         <li>Lead cross-functional teams (engineering, ML, data) to evolve messaging into reusable platform primitives</li>
         <li>Define system design tradeoffs across scalability, latency, reliability, and personalization</li>
         <li>Established platform governance and measurement frameworks adopted by 20+ partner teams</li>
         <li>Built and deployed internal analytics tools and automated data pipelines used by team and partner PMs</li>
-        <li>Partner with senior leadership on long-term platform direction and infrastructure investments</li>
       </ul>
     </div>
 
@@ -110,10 +109,10 @@
       </div>
       <div class="job-company">Spotify · Berlin, Germany</div>
       <ul>
-        <li>Led platform strategy for mobile design system — defined primitives (components, theming, tokens, adoption models) powering shared UI across iOS and Android</li>
-        <li>Led platform teams for shared content surfaces and navigation entry points; drove platformization improving reuse and performance</li>
+        <li>Led platform strategy for mobile design system — defined primitives (components, theming, tokens) powering shared UI across iOS and Android</li>
+        <li>Led platform teams for shared content surfaces and navigation; drove platformization improving reuse and performance</li>
         <li>Led 2 platform squads (12 engineers, 2 tech leads) across Berlin and Stockholm</li>
-        <li>Balanced standardization vs team autonomy; operated across product and engineering boundaries</li>
+        <li>Balanced standardization vs team autonomy; design system adopted by 50+ feature teams</li>
         <li>Promoted 2 engineers to senior; established career frameworks adopted across Mobile org</li>
         <li>100% team retention post-restructuring; improved delivery velocity through modular architecture</li>
       </ul>
@@ -130,7 +129,6 @@
         <li>Managed 2 EMs; mentored both to promotion (one now leads their own domain). Coached 2 tech leads toward Staff/Senior EM</li>
         <li>Grew platform adoption from 20% → 80% in 6 months; established adoption metrics, guardrails, and success criteria</li>
         <li>Defined 18-month technical roadmap; hired 8 engineers across geographies</li>
-        <li>Made explicit tradeoffs between expressiveness, complexity, and runtime performance for long-term viability</li>
       </ul>
     </div>
 
@@ -143,6 +141,7 @@
       <ul>
         <li>Led cross-functional squad for Home Screen and Navigation serving 40M+ users</li>
         <li>Balanced feature velocity, UX clarity, app start performance, and architectural maintainability</li>
+        <li>Introduced blameless retros and data-informed rituals adopted by 5 teams</li>
       </ul>
     </div>
 
@@ -153,9 +152,8 @@
       </div>
       <div class="job-company">Delivery Hero · Berlin</div>
       <ul>
-        <li>Backend: migrated PHP monolith to Go microservices (ElasticSearch, SNS/SQS, DynamoDB, AWS)</li>
-        <li>iOS: rewrote Obj-C to Swift; introduced component-based architecture for scalability</li>
-        <li>Frontend: PHP/Backbone → Node.js + React/Redux with Docker/K8s</li>
+        <li>Migrated PHP monolith to Go microservices (ElasticSearch, SNS/SQS, DynamoDB, AWS); rebuilt iOS (Swift) and web (React/Redux, Docker/K8s)</li>
+        <li>Order volume grew from 50K to 4M/day during tenure</li>
       </ul>
     </div>
 
@@ -165,9 +163,9 @@
         <span class="job-date">2013 – 2017</span>
       </div>
       <ul>
-        <li><strong>Technical Lead / Founding Engineer – Splidit GmbH</strong> (fintech, Cologne): MVP iOS app + design system</li>
+        <li><strong>Technical Lead / Founding Engineer – Splidit GmbH</strong> (fintech startup, Cologne): Built MVP iOS app + design system</li>
         <li><strong>Full-Stack – Smart In Media</strong> (Cologne): Built easyzoom.com (.NET, Azure, AngularJS)</li>
-        <li><strong>iOS Engineer – elmenus</strong> (Cairo): First iOS app for food discovery platform</li>
+        <li><strong>iOS Engineer – elmenus</strong> (Cairo): First iOS app for Egypt's food discovery platform</li>
       </ul>
     </div>
   </div>
