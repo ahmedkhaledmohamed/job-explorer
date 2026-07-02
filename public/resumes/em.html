@@ -23,15 +23,15 @@
   .main { flex: 1; padding: 0.35in 0.3in; }
   .main h2 { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; color: #2d3748; border-bottom: 1.5pt solid #cbd5e0; padding-bottom: 2pt; margin: 8pt 0 4pt; }
   .main h2:first-child { margin-top: 0; }
-  .summary { font-size: 9pt; line-height: 1.4; margin-bottom: 5pt; color: #2d3748; }
+  .summary { font-size: 8.5pt; line-height: 1.35; margin-bottom: 4pt; color: #2d3748; }
 
   .job { margin-bottom: 5pt; }
   .job-header { display: flex; justify-content: space-between; align-items: baseline; }
-  .job-title { font-weight: 700; font-size: 9.5pt; }
-  .job-date { font-size: 8pt; color: #718096; white-space: nowrap; }
-  .job-company { font-size: 8.5pt; color: #718096; margin-bottom: 1pt; }
+  .job-title { font-weight: 700; font-size: 9pt; }
+  .job-date { font-size: 7.5pt; color: #718096; white-space: nowrap; }
+  .job-company { font-size: 8pt; color: #718096; margin-bottom: 1pt; }
   .job ul { padding-left: 12pt; }
-  .job li { font-size: 9pt; line-height: 1.3; margin-bottom: 1.5pt; }
+  .job li { font-size: 8.5pt; line-height: 1.25; margin-bottom: 1pt; }
 
   @media print {
     @page { margin: 0; size: letter; }
@@ -45,7 +45,7 @@
 
   <div class="sidebar">
     <h1>Ahmed Khaled Mohamed</h1>
-    <div class="headline">Senior Engineering Manager<br>Platform, Mobile & Infrastructure</div>
+    <div class="headline">Senior Engineering Manager<br>Platform, Mobile & AI Systems</div>
 
     <h3>Contact</h3>
     <div class="ci">ahmed.khaled.a.mohamed@gmail.com</div>
@@ -55,18 +55,18 @@
     <div class="ci"><a href="https://github.com/ahmedkhaledmohamed">github.com/ahmedkhaledmohamed</a></div>
     <div class="ci"><a href="https://ahmedkhaledmohamed.github.io/me">ahmedkhaledmohamed.github.io/me</a></div>
 
+    <h3>Engineering Leadership</h3>
+    <p>Team Building & Mentorship · Performance Management · Technical Strategy · Cross-Functional Alignment · Hiring & Retention · Engineering Culture · Leading Through Ambiguity · Executive Communication · Scaling Teams</p>
+
     <h3>Technical Depth</h3>
-    <p>Mobile Architecture (iOS, Android) · SDK & API Design · Distributed Systems · Server-Driven UI · Microservices · Platform Engineering</p>
+    <p>Mobile Architecture (iOS, Android) · SDK & API Design · Distributed Systems · Server-Driven UI · Microservices · Platform Engineering · Go · Swift · Python · TypeScript</p>
 
     <h3>Applied AI</h3>
-    <p>LLM Integration · RAG Systems · Multi-Model Orchestration · Prompt Engineering · AI-Assisted Development</p>
-
-    <h3>Stack</h3>
-    <p>Go · Swift · Python · TypeScript · BigQuery · PostgreSQL · GCP · AWS · ElasticSearch · Docker · K8s · React</p>
+    <p>LLM Integration (Claude, GPT-4) · RAG Systems · Multi-Model Orchestration · Prompt Engineering · pgvector · AI-Assisted Development</p>
 
     <h3>Education</h3>
     <div class="edu-entry">
-      <div class="school">University of Bonn</div>
+      <div class="school">University of Bonn, Germany</div>
       <div class="degree">MSc Computer Science · 2014–2017</div>
     </div>
     <div class="edu-entry">
@@ -83,38 +83,35 @@
 
   <div class="main">
     <h2>Summary</h2>
-    <p class="summary">Engineering leader with 6 years managing engineering organizations of various sizes (up to 18 engineers, 3 squads) and 12 years total in software. Built a Server-Driven UI platform from scratch at Delivery Hero, growing homescreen coverage from 0% to 100% across 13 countries. Shipped platform infrastructure serving 700M+ users at Spotify. Transitioned to PM in 2025 to drive platform strategy at org scale. I lead with technical credibility and a product mindset.</p>
+    <p class="summary">Engineering leader with 6 years managing engineering organizations of various sizes (up to 18 engineers, 3 squads) and 12 years total in software. Built a Server-Driven UI platform from scratch at Delivery Hero, growing homescreen coverage from 0% to 100% across 13 countries. Shipped platform infrastructure serving 700M+ users at Spotify. My background as a founding engineer means I still build. I lead with technical credibility and a product mindset: my teams don't just deliver features, they accelerate entire organizations.</p>
 
     <h2>Experience</h2>
 
     <div class="job">
       <div class="job-header">
-        <span class="job-title">Senior Technical Product Manager - Messaging</span>
+        <span class="job-title">Platform Lead - Messaging Infrastructure</span>
         <span class="job-date">Sep 2025 – Present</span>
       </div>
       <div class="job-company">Spotify · Toronto, Canada (3 years 9 months at Spotify)</div>
       <ul>
-        <li>Transitioned from EM to PM to drive platform strategy at organization scale for messaging infrastructure (push, in-app, inbox) serving 700M+ users</li>
-        <li>Lead cross-functional teams (engineering, ML, data) to evolve messaging into reusable platform primitives</li>
-        <li>Define system design tradeoffs across scalability, latency, reliability, and personalization</li>
+        <li>Driving technical roadmap for messaging infrastructure (push, in-app, inbox) serving 700M+ users across iOS, Android, and Web</li>
+        <li>Partnering with ML team on predictive messaging and personalization models</li>
         <li>Established platform governance and measurement frameworks now used by 20+ partner teams</li>
-        <li>Built and deployed internal analytics tools and automated data pipelines used by team and partner PMs</li>
+        <li>Championing native-first architecture migration, reducing operational overhead for feature teams</li>
       </ul>
     </div>
 
     <div class="job">
       <div class="job-header">
-        <span class="job-title">Engineering Manager II / Platform PM</span>
+        <span class="job-title">Engineering Manager II - Mobile Core Experience</span>
         <span class="job-date">Oct 2022 – Sep 2025</span>
       </div>
       <div class="job-company">Spotify · Berlin, Germany</div>
       <ul>
-        <li>Led platform strategy for mobile design system — defined primitives (components, theming, tokens) powering shared UI across iOS and Android</li>
-        <li>Led platform teams for shared content surfaces and navigation; drove platformization improving reuse and performance</li>
-        <li>Led 2 platform squads (12 engineers, 2 tech leads) across Berlin and Stockholm</li>
-        <li>Balanced standardization vs team autonomy; design system adopted by 50+ feature teams</li>
-        <li>Promoted 2 engineers to senior; established career frameworks adopted across Mobile org</li>
-        <li>100% team retention post-restructuring; improved delivery velocity through modular architecture</li>
+        <li>Led 2 platform squads (12 engineers, 2 tech leads) building content presentation and design system infrastructure across Berlin and Stockholm</li>
+        <li>Owned content rendering architecture used by all Spotify mobile apps and design system adopted by 50+ feature teams</li>
+        <li>Promoted 2 engineers to senior; established career frameworks and planning rituals adopted across Mobile org</li>
+        <li>Achieved 100% team retention post-restructuring; improved feature delivery velocity through modular architecture</li>
       </ul>
     </div>
 
@@ -125,10 +122,11 @@
       </div>
       <div class="job-company">Delivery Hero · Berlin, Germany (5 years 1 month at Delivery Hero)</div>
       <ul>
-        <li>Built Server-Driven UI platform from scratch with the team: 3 squads, 18 engineers across Berlin and Asia</li>
+        <li>Built Server-Driven UI platform from scratch: 3 squads, 18 engineers across Berlin and Asia</li>
         <li>Grew homescreen coverage from 0% to 100% across 13 countries, then expanded to additional screens</li>
-        <li>Grew a senior engineer into an EM role and continued mentoring; grew 2 senior engineers to staff level</li>
-        <li>Defined 18-month technical roadmap; hired 8 engineers across geographies</li>
+        <li>Grew a senior engineer into an EM role (now leads their own domain); coached 2 tech leads toward Staff/Senior EM track</li>
+        <li>Grew 2 senior engineers to staff level; hired 8 engineers across multiple geographies</li>
+        <li>Defined 18-month technical roadmap; built cross-functional alignment with Product, Design, Analytics</li>
       </ul>
     </div>
 
@@ -139,9 +137,9 @@
       </div>
       <div class="job-company">Delivery Hero · Berlin</div>
       <ul>
-        <li>Led cross-functional squad for Home Screen and Navigation serving 40M+ users</li>
-        <li>Balanced feature velocity, UX clarity, app start performance, and architectural maintainability</li>
-        <li>Introduced blameless retros and data-informed rituals adopted by 5 teams</li>
+        <li>Led cross-functional squad for app home screen and discovery experiences serving 40M+ users</li>
+        <li>Transitioned from IC to people leadership; introduced blameless retros and data-informed rituals adopted by 5 teams</li>
+        <li>Delivered measurable conversion improvements through personalization; instrumented analytics processing millions of daily events</li>
       </ul>
     </div>
 
@@ -152,7 +150,9 @@
       </div>
       <div class="job-company">Delivery Hero · Berlin</div>
       <ul>
-        <li>Migrated PHP monolith to Go microservices (ElasticSearch, SNS/SQS, DynamoDB, AWS); rebuilt iOS (Swift) and web (React/Redux, Docker/K8s)</li>
+        <li>Migrated backend from monolithic PHP to Go-based microservices on AWS, improving scalability and latency</li>
+        <li>Rebuilt client-side stacks (Swift; React/Redux) to enhance reliability and code maintainability</li>
+        <li>Delivered globally scaled features in close collaboration with product and design teams</li>
       </ul>
     </div>
 
@@ -162,9 +162,9 @@
         <span class="job-date">2013 – 2017</span>
       </div>
       <ul>
-        <li><strong>Technical Lead / Founding Engineer – Splidit GmbH</strong> (fintech startup, Cologne): Built MVP iOS app + design system</li>
-        <li><strong>Full-Stack – Smart In Media</strong> (Cologne): Built easyzoom.com (.NET, Azure, AngularJS)</li>
-        <li><strong>iOS Engineer – elmenus</strong> (Cairo): First iOS app for Egypt's food discovery platform</li>
+        <li><strong>Founding Engineer – Splidit GmbH</strong> (fintech, Cologne): Built MVP iOS app + design system for payments</li>
+        <li><strong>Full-Stack – Smart In Media</strong> (Cologne): Built easyzoom.com (.NET, AngularJS, Azure)</li>
+        <li><strong>iOS Engineer – elmenus</strong> (Cairo): First iOS app for Egypt's leading food discovery platform</li>
       </ul>
     </div>
   </div>
