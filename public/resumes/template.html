@@ -1,0 +1,150 @@
+<!--
+  RESUME TEMPLATE — Reusable two-column layout
+
+  Usage: Copy this file, replace the {{PLACEHOLDERS}} with your content.
+  Print: Open in Chrome → Cmd+P → Margins: None → Background graphics: ON → Save as PDF
+
+  Layout: Dark sidebar (2.3in) + white main column. Fits 1 page at letter size.
+
+  Font sizes (tuned for 1-page fit):
+    - Name: 15pt
+    - Sidebar headings: 7.5pt uppercase
+    - Sidebar body: 8pt
+    - Main section headings: 9.5pt uppercase
+    - Summary: 9pt
+    - Job titles: 9.5pt bold
+    - Bullets: 9pt
+    - Company/dates: 8-8.5pt gray
+
+  Colors:
+    - Sidebar bg: #2d3748
+    - Sidebar text: #e2e8f0
+    - Sidebar headings: #ecc94b (gold)
+    - Sidebar links: #90cdf4
+    - Sidebar muted: #a0aec0
+    - Main text: #1a1a1a
+    - Main headings: #2d3748
+    - Dates/company: #718096
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} — {{VARIANT}} Resume</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 10pt; line-height: 1.35; color: #1a1a1a; }
+  .page { display: flex; max-width: 8.5in; min-height: 11in; margin: 0 auto; }
+
+  /* === SIDEBAR === */
+  .sidebar { width: 2.3in; background: #2d3748; color: #e2e8f0; padding: 0.35in 0.22in; flex-shrink: 0; }
+  .sidebar h1 { font-size: 15pt; font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 2pt; }
+  .sidebar .headline { font-size: 8pt; color: #a0aec0; margin-bottom: 10pt; line-height: 1.3; }
+  .sidebar h3 { font-size: 7.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6pt; color: #ecc94b; margin: 8pt 0 3pt; }
+  .sidebar p { font-size: 8pt; line-height: 1.3; color: #cbd5e0; }
+  .sidebar a { color: #90cdf4; text-decoration: none; font-size: 8pt; }
+  .sidebar .ci { margin-bottom: 2pt; font-size: 8pt; }
+  .sidebar .edu-entry { margin-bottom: 4pt; }
+  .sidebar .school { font-weight: 600; color: #e2e8f0; font-size: 8pt; }
+  .sidebar .degree { font-size: 7pt; color: #a0aec0; }
+
+  /* === MAIN COLUMN === */
+  .main { flex: 1; padding: 0.35in 0.3in; }
+  .main h2 { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; color: #2d3748; border-bottom: 1.5pt solid #cbd5e0; padding-bottom: 2pt; margin: 8pt 0 4pt; }
+  .main h2:first-child { margin-top: 0; }
+  .summary { font-size: 9pt; line-height: 1.4; margin-bottom: 5pt; color: #2d3748; }
+
+  /* === JOBS === */
+  .job { margin-bottom: 5pt; }
+  .job-header { display: flex; justify-content: space-between; align-items: baseline; }
+  .job-title { font-weight: 700; font-size: 9.5pt; }
+  .job-date { font-size: 8pt; color: #718096; white-space: nowrap; }
+  .job-company { font-size: 8.5pt; color: #718096; margin-bottom: 1pt; }
+  .job ul { padding-left: 12pt; }
+  .job li { font-size: 9pt; line-height: 1.3; margin-bottom: 1.5pt; }
+
+  /* === OPTIONAL: side projects line === */
+  .ship { font-size: 8.5pt; line-height: 1.35; color: #4a5568; margin-top: 3pt; }
+  .ship a { color: #2563eb; text-decoration: none; }
+
+  /* === PRINT === */
+  @media print {
+    @page { margin: 0; size: letter; }
+    .page { min-height: 0; }
+    .sidebar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar">
+    <h1>{{NAME}}</h1>
+    <div class="headline">{{HEADLINE_LINE1}}<br>{{HEADLINE_LINE2}}</div>
+
+    <h3>Contact</h3>
+    <div class="ci">{{EMAIL}}</div>
+    <div class="ci">{{PHONE}}</div>
+    <div class="ci">{{LOCATION}}</div>
+    <div class="ci"><a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a></div>
+    <div class="ci"><a href="{{GITHUB_URL}}">{{GITHUB_DISPLAY}}</a></div>
+    <div class="ci"><a href="{{WEBSITE_URL}}">{{WEBSITE_DISPLAY}}</a></div>
+
+    <!-- Add as many skill sections as needed -->
+    <h3>{{SKILL_SECTION_1_TITLE}}</h3>
+    <p>{{SKILL_SECTION_1_ITEMS}}</p>
+
+    <h3>{{SKILL_SECTION_2_TITLE}}</h3>
+    <p>{{SKILL_SECTION_2_ITEMS}}</p>
+
+    <h3>{{SKILL_SECTION_3_TITLE}}</h3>
+    <p>{{SKILL_SECTION_3_ITEMS}}</p>
+
+    <h3>Education</h3>
+    <div class="edu-entry">
+      <div class="school">{{EDU_1_SCHOOL}}</div>
+      <div class="degree">{{EDU_1_DEGREE}} · {{EDU_1_DATES}}</div>
+    </div>
+    <div class="edu-entry">
+      <div class="school">{{EDU_2_SCHOOL}}</div>
+      <div class="degree">{{EDU_2_DEGREE}} · {{EDU_2_DATES}}</div>
+    </div>
+
+    <h3>Languages</h3>
+    <p>{{LANGUAGES}}</p>
+
+    <h3>Status</h3>
+    <p>{{STATUS}}</p>
+  </div>
+
+  <!-- ============ MAIN COLUMN ============ -->
+  <div class="main">
+    <h2>Summary</h2>
+    <p class="summary">{{SUMMARY}}</p>
+
+    <h2>Experience</h2>
+
+    <!-- Repeat this block for each job -->
+    <div class="job">
+      <div class="job-header">
+        <span class="job-title">{{JOB_TITLE}}</span>
+        <span class="job-date">{{JOB_DATES}}</span>
+      </div>
+      <div class="job-company">{{JOB_COMPANY}} · {{JOB_LOCATION}} ({{TENURE}})</div>
+      <ul>
+        <li>{{BULLET_1}}</li>
+        <li>{{BULLET_2}}</li>
+        <li>{{BULLET_3}}</li>
+      </ul>
+    </div>
+    <!-- End job block -->
+
+    <!-- Optional: side projects (remove if not needed) -->
+    <!-- <p class="ship">{{SIDE_PROJECTS_LINE}} <a href="{{PORTFOLIO_URL}}">{{PORTFOLIO_DISPLAY}}</a></p> -->
+  </div>
+
+</div>
+</body>
+</html>
